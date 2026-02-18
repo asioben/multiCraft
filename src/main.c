@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../include/utility.h"
+#include "../include/graphic.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -34,9 +34,36 @@ int main(){
     //SDL_GL_SetSwapInterval(-1);
 
     glClearColor(1.0f,0.0f,0.0f,1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.0f, 0.5f, 0.0f
+    };
+
+    unsigned int VBO, VAO;
+    vbo_init(&VBO,vertices,sizeof(vertices));
+    vao_init(&VAO);
+
+    int handles[3] = {0,0,0};
+    const char *test0 = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main(){\n"
+    "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+
+    const char *test1 = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main(){\n"
+    "FragColor = vec4(1.0f,0.5f,0.2f,1.0f);\n"
+    "}\0";
+
+    //if(shaders_init("/Users/user/Developer/multiCraft/shaders/vertex.vs","shaders/color.fs",handles) == 1) return safe_exit("Erreur shaders",window,context);
+    if(shaders_init(test0,test1,handles) == 1) return safe_exit("Erreur shaders",window,context);
+
 
     while(loop){
+        render(VAO,handles[0]);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
         while(SDL_PollEvent(&event) == 1){
@@ -50,6 +77,9 @@ int main(){
         }
     }
     
+    vbo_destroy(&VBO);
+    vao_destroy(&VAO);
+    shaders_destroy(handles[1],handles[2],handles[0]);
     SDL_GL_DestroyContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
