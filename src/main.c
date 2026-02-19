@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "../include/graphic.h"
 
 #define WIDTH 800
@@ -36,17 +35,50 @@ int main(){
     glClearColor(1.0f,0.0f,0.0f,1.0f);
 
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
+      // Positions (x, y, z)
+      -0.5f, -0.5f, -0.5f,  // 0
+       0.5f, -0.5f, -0.5f,  // 1
+       0.5f,  0.5f, -0.5f,  // 2
+      -0.5f,  0.5f, -0.5f,  // 3
+      -0.5f, -0.5f,  0.5f,  // 4
+       0.5f, -0.5f,  0.5f,  // 5
+       0.5f,  0.5f,  0.5f,  // 6
+      -0.5f,  0.5f,  0.5f   // 7
     };
 
-    unsigned int VBO, VAO;
+    unsigned short indices[] = {
+    // Back face
+    0, 1, 2,
+    2, 3, 0,
+
+    // Front face
+    4, 5, 6,
+    6, 7, 4,
+
+    // Left face
+    4, 0, 3,
+    3, 7, 4,
+
+    // Right face
+    1, 5, 6,
+    6, 2, 1,
+
+    // Bottom face
+    4, 5, 1,
+    1, 0, 4,
+
+    // Top face
+    3, 2, 6,
+    6, 7, 3
+};
+
+    unsigned int VBO, VAO, EBO;
     vbo_init(&VBO,vertices,sizeof(vertices));
     vao_init(&VAO);
+    ebo_init(&EBO,indices,sizeof(indices));
 
     int handles[3] = {0,0,0};
-    const char *test0 = "#version 330 core\n"
+    /*const char *test0 = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
     "void main(){\n"
     "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
@@ -56,10 +88,13 @@ int main(){
     "out vec4 FragColor;\n"
     "void main(){\n"
     "FragColor = vec4(1.0f,0.5f,0.2f,1.0f);\n"
-    "}\0";
+    "}\0";*/
 
-    //if(shaders_init("/Users/user/Developer/multiCraft/shaders/vertex.vs","shaders/color.fs",handles) == 1) return safe_exit("Erreur shaders",window,context);
-    if(shaders_init(test0,test1,handles) == 1) return safe_exit("Erreur shaders",window,context);
+    const char *vs = "/Users/user/Developer/multiCraft/shaders/vertex.vs";
+    const char *fs = "/Users/user/Developer/multiCraft/shaders/color.fs";
+
+    if(shaders_init(vs,fs,handles) == 1) return safe_exit("Erreur shaders",window,context);
+    //if(shaders_init(test0,test1,handles) == 1) return safe_exit("Erreur shaders",window,context);
 
 
     while(loop){
@@ -77,7 +112,7 @@ int main(){
         }
     }
     
-    vbo_destroy(&VBO);
+    vbo_ebo_destroy(&VBO,&EBO);
     vao_destroy(&VAO);
     shaders_destroy(handles[1],handles[2],handles[0]);
     SDL_GL_DestroyContext(context);

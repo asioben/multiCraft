@@ -1,17 +1,27 @@
 #include "../include/graphic.h"
 
-void vbo_init(unsigned int *VBO, float *vertices, size_t size){
+void vbo_init(unsigned int *VBO, float *data, size_t size){
     //Generate buffer ID
     glGenBuffers(1, VBO);
     //Bind 
     glBindBuffer(GL_ARRAY_BUFFER, *VBO);
     //Copy the data into the buffer
-    glBufferData(GL_ARRAY_BUFFER,size,vertices,GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,size,data,GL_STATIC_DRAW);
 }
 
-void vbo_destroy(unsigned int *VBO){
+void ebo_init(unsigned int *EBO, unsigned short *data, size_t size){
+    //Generate buffer ID
+    glGenBuffers(1, EBO);
+    //Bind 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
+    //Copy the data into the buffer
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,size,data,GL_STATIC_DRAW);
+}
+
+void vbo_ebo_destroy(unsigned int *VBO, unsigned int *EBO){
     //Destroy the bufffer
     glDeleteBuffers(1,VBO);
+    glDeleteBuffers(1,EBO);
 }
 
 void vao_init(unsigned int *VAO){
@@ -30,10 +40,19 @@ void vao_destroy(unsigned int *VAO){
 }
 
 static int compileShader(const char *source, GLenum shaderType){
-    unsigned int shader;
+    unsigned int shader = 0;
+    char *content = NULL;
+    int value = 0;
     shader = glCreateShader(shaderType);
-    glShaderSource(shader,1,&source,NULL);
+    //get the content of the src file
+    value = readFile(source,&content);
+    if(value == 1){
+        printf("Erreur Compilation de Shader ;(");
+        return -1;
+    }
+    glShaderSource(shader,1,&content,NULL);
     glCompileShader(shader);
+    free(content);
     //check for failure
     int failure;
     char info[512];
@@ -91,5 +110,6 @@ void render(unsigned int VAO, unsigned int program){
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(program);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES,0,3);
+    glDrawElements(GL_TRIANGLES,36,GL_UNSIGNED_SHORT,0);
+    glBindVertexArray(0);
 }

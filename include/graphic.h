@@ -4,9 +4,11 @@
 #include "utility.h"
 
 //VBO
-void vbo_init(unsigned int *VBO, float *vertices, size_t size);
+void vbo_init(unsigned int *VBO, float *data, size_t size);
 
-void vbo_destroy(unsigned int *VBO);
+void ebo_init(unsigned int *EBO, unsigned short *data, size_t size);
+
+void vbo_ebo_destroy(unsigned int *VBO, unsigned int *EBO);
 
 //VAO
 void vao_init(unsigned int *VAO);
