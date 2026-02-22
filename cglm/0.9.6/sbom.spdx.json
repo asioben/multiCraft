@@ -1,0 +1,87 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "name": "SBOM-SPDX-cglm-0.9.6",
+  "creationInfo": {
+    "created": "2026-02-20T04:41:40Z",
+    "creators": [
+      "Tool: https://github.com/Homebrew/brew@5.0.14"
+    ]
+  },
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://formulae.brew.sh/spdx/cglm-0.9.6.json",
+  "documentDescribes": [
+    "SPDXRef-Archive-cglm-src",
+    "SPDXRef-Compiler",
+    "SPDXRef-Bottle-cglm"
+  ],
+  "files": [],
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Archive-cglm-src",
+      "name": "cglm",
+      "versionInfo": "0.9.6",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "builtDate": "2025-02-13 19:35:16 UTC",
+      "licenseConcluded": "MIT",
+      "downloadLocation": "https://github.com/recp/cglm/archive/refs/tags/v0.9.6.tar.gz",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [],
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "be5e7d384561eb0fca59724a92b7fb44bf03e588a7eae5123a7d796002928184"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Compiler",
+      "name": "clang",
+      "versionInfo": "26.0",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "checksums": [],
+      "externalRefs": []
+    },
+    {
+      "SPDXID": "SPDXRef-Bottle-cglm",
+      "name": "cglm",
+      "versionInfo": "0.9.6",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "builtDate": "2025-02-13 19:35:16 UTC",
+      "licenseConcluded": "MIT",
+      "downloadLocation": "https://ghcr.io/v2/homebrew/core/cglm/blobs/sha256:2a4e8d2c345846e569a51d36bf21c611c83c91ac112c6fd75a084c662eeeef52",
+      "copyrightText": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:brew/homebrew/core/cglm@0.9.6",
+          "referenceType": "purl"
+        }
+      ],
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2a4e8d2c345846e569a51d36bf21c611c83c91ac112c6fd75a084c662eeeef52"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-File-cglm",
+      "relationshipType": "PACKAGE_OF",
+      "relatedSpdxElement": "SPDXRef-Archive-cglm-src"
+    },
+    {
+      "spdxElementId": "SPDXRef-Compiler",
+      "relationshipType": "BUILD_TOOL_OF",
+      "relatedSpdxElement": "SPDXRef-Package-cglm-src"
+    }
+  ]
+}

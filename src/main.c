@@ -1,10 +1,10 @@
 #include "../include/graphic.h"
+#include "../include/input.h"
 
 #define WIDTH 800
 #define HEIGHT 600
 
 int main(){
-    //printf("Hello World !\n");
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0)return(safe_exit("Erreur SDL",NULL,NULL));
 
@@ -29,8 +29,6 @@ int main(){
     if(!version)return(safe_exit("Erreur Version",window,context));
 
     printf("OpenGL version: %s\n",version);
-
-    //SDL_GL_SetSwapInterval(-1);
 
     glClearColor(1.0f,0.0f,0.0f,1.0f);
 
@@ -78,25 +76,15 @@ int main(){
     ebo_init(&EBO,indices,sizeof(indices));
 
     int handles[3] = {0,0,0};
-    /*const char *test0 = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main(){\n"
-    "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-
-    const char *test1 = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main(){\n"
-    "FragColor = vec4(1.0f,0.5f,0.2f,1.0f);\n"
-    "}\0";*/
 
     const char *vs = "/Users/user/Developer/multiCraft/shaders/vertex.vs";
     const char *fs = "/Users/user/Developer/multiCraft/shaders/color.fs";
 
     if(shaders_init(vs,fs,handles) == 1) return safe_exit("Erreur shaders",window,context);
-    //if(shaders_init(test0,test1,handles) == 1) return safe_exit("Erreur shaders",window,context);
-
-
+   
+    Uint8 *keys;
+    Mouse mouse;
+    SDL_Delay(100);
     while(loop){
         render(VAO,handles[0]);
         SDL_GL_SwapWindow(window);
@@ -104,10 +92,13 @@ int main(){
         while(SDL_PollEvent(&event) == 1){
             switch(event.type){
                 case SDL_EVENT_QUIT: loop = false; break;
-                case SDL_EVENT_KEY_DOWN:
-                    switch(event.key.key){
-                        case SDLK_ESCAPE: return safe_exit("Test",window,context);break;
-                    }break;
+                default: {
+                    keys = getKeys();
+                    mouse = getMouse(event);
+                    if(mouse.left){
+                        printf("Position: (%i,%i) and Motion: (%i,%i)\n",mouse.position.x,mouse.position.y,mouse.motion.x,mouse.motion.y);
+                    }
+                }
             }
         }
     }

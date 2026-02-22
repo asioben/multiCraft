@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "/Users/user/Developer/multiCraft/SDL3/3.4.0/include",
                 "/Users/user/Developer/multiCraft/glad/include",
-                "/Users/user/Developer/multiCraft/include"
+                "/Users/user/Developer/multiCraft/include",
+                "/Users/user/Developer/multiCraft/cglm/0.9.6/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
