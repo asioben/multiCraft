@@ -16,6 +16,9 @@ void ebo_init(unsigned int *EBO, unsigned short *data, size_t size){
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
     //Copy the data into the buffer
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,size,data,GL_STATIC_DRAW);
+    //vertex attribut
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(float),(void*)0);
+    glEnableVertexAttribArray(0);
 }
 
 void vbo_ebo_destroy(unsigned int *VBO, unsigned int *EBO){
@@ -29,9 +32,6 @@ void vao_init(unsigned int *VAO){
     glGenVertexArrays(1,VAO);
     //Bind
     glBindVertexArray(*VAO);
-    //vertex attribut
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(float),(void*)0);
-    glEnableVertexAttribArray(0);
 }
 
 void vao_destroy(unsigned int *VAO){
@@ -107,7 +107,7 @@ void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int pr
 }
 
 void render(unsigned int VAO, unsigned int program){
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program);
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES,36,GL_UNSIGNED_SHORT,0);

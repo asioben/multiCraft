@@ -1,5 +1,6 @@
 #include "../include/graphic.h"
 #include "../include/input.h"
+#include "../include/camera.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -70,22 +71,38 @@ int main(){
     6, 7, 3
 };
 
+    glEnable(GL_DEPTH_TEST);
+    glViewport(0,0,WIDTH,HEIGHT);
+    //init  some objects
     unsigned int VBO, VAO, EBO;
-    vbo_init(&VBO,vertices,sizeof(vertices));
     vao_init(&VAO);
+    vbo_init(&VBO,vertices,sizeof(vertices));
     ebo_init(&EBO,indices,sizeof(indices));
-
     int handles[3] = {0,0,0};
 
+    //paths
     const char *vs = "/Users/user/Developer/multiCraft/shaders/vertex.vs";
     const char *fs = "/Users/user/Developer/multiCraft/shaders/color.fs";
 
     if(shaders_init(vs,fs,handles) == 1) return safe_exit("Erreur shaders",window,context);
    
+    //event
     Uint8 *keys;
     Mouse mouse;
-    SDL_Delay(100);
+
+    //some general int
+    unsigned int matrix = 0;
+    int counter = 0;
+
+    //camera portion
+    vec3s position = {0.0f,0.0f,5.0f};
+    vec3s look = {0.0f,0.0f,0.0f};
+    mat4s View = getCamera(position,look);
+    mat4s World_ = worldMatrix(View);
+    mat4 World;
+    memcpy(World,World_.raw,sizeof(mat4));
     while(loop){
+        matrix_init(World,handles[0],&matrix,&counter);
         render(VAO,handles[0]);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
