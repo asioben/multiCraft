@@ -5,12 +5,27 @@
 
 #include "input.h"
 
-mat4s getCamera(vec3s position, vec3s look);
+typedef struct camera_{
+    //camera general
+    vec3s look;
+    vec3s position;
+    //special vector
+    vec3s up;
+    vec3s right;
+    vec3s forward;
+    //angle
+    float yaw; 
+    float pitch;
+    //matrix
+    mat4s View;
+}Camera;
+
+void initCamera(Camera *camera, vec3s position, vec3s look);
 
 mat4s worldMatrix(mat4s View);
 
-void matrix_init(mat4 World, unsigned int program, unsigned int *matrix, int *counter);
+void matrix_init(mat4s View , unsigned int program, unsigned int *matrix, int *counter);
 
-//void camera_movement(vec3s *position, vec3s *look, const Uint8 *keys, Mouse mouse);
+void cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaTime);
 
 #endif

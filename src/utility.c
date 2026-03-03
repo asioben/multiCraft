@@ -51,3 +51,13 @@ int readFile(const char *path,char **content){
     return 0;
     //be careful while freeing
 }
+
+void initTime(Tick *tick){
+    tick->before = SDL_GetTicks();
+}
+
+void deltaTime(Tick *tick){
+    tick->after = SDL_GetTicks();
+    tick->delta = tick->after - tick->before;
+    tick->before = tick->after;
+}

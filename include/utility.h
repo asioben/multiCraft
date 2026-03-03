@@ -13,6 +13,17 @@
 #define WIDTH 800
 #define HEIGHT 600
 
+typedef struct tick_{
+    Uint64 before;
+    Uint64 after;
+    Uint64 delta;
+}Tick;
+
+//Tick
+void initTime(Tick *tick);
+
+void deltaTime(Tick *tick);
+
 int safe_exit(const char *message, SDL_Window *window, SDL_GLContext context);
 
 //BE CAREFUL AND FREE IT IN THE RIGHT MOMENT!!!

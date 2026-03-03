@@ -95,14 +95,18 @@ int main(){
     int counter = 0;
 
     //camera portion
-    vec3s position = {0.0f,0.0f,5.0f};
+    Camera camera;
+    vec3s position = {0.0f,0.0f,1.0f};
     vec3s look = {0.0f,0.0f,0.0f};
-    mat4s View = getCamera(position,look);
-    mat4s World_ = worldMatrix(View);
-    mat4 World;
-    memcpy(World,World_.raw,sizeof(mat4));
+    initCamera(&camera,position,look);
+
+    //tick
+    Tick tick;
+    initTime(&tick);
     while(loop){
-        matrix_init(World,handles[0],&matrix,&counter);
+        deltaTime(&tick);
+        camera.View = glms_lookat(camera.position,camera.look,camera.up);
+        matrix_init(camera.View,handles[0],&matrix,&counter);
         render(VAO,handles[0]);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
@@ -112,9 +116,7 @@ int main(){
                 default: {
                     keys = getKeys();
                     mouse = getMouse(event);
-                    if(mouse.left){
-                        printf("Position: (%i,%i) and Motion: (%i,%i)\n",mouse.position.x,mouse.position.y,mouse.motion.x,mouse.motion.y);
-                    }
+                    cameraMovement(keys,mouse,&camera,tick.delta);
                 }
             }
         }
