@@ -9,6 +9,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <time.h>
+#include <inttypes.h>
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -18,6 +21,8 @@ typedef struct tick_{
     Uint64 after;
     Uint64 delta;
 }Tick;
+
+int64_t getTime(void);
 
 //Tick
 void initTime(Tick *tick);

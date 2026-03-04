@@ -1,6 +1,7 @@
 #include "../include/graphic.h"
 #include "../include/input.h"
 #include "../include/camera.h"
+#include "../include/texture.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -35,14 +36,14 @@ int main(){
 
     float vertices[] = {
       // Positions (x, y, z)
-      -0.5f, -0.5f, -0.5f,  // 0
-       0.5f, -0.5f, -0.5f,  // 1
-       0.5f,  0.5f, -0.5f,  // 2
-      -0.5f,  0.5f, -0.5f,  // 3
-      -0.5f, -0.5f,  0.5f,  // 4
-       0.5f, -0.5f,  0.5f,  // 5
-       0.5f,  0.5f,  0.5f,  // 6
-      -0.5f,  0.5f,  0.5f   // 7
+      -0.5f, -0.5f, -0.5f, 1.0f, 1.0f,  // 0
+       0.5f, -0.5f, -0.5f, 1.0f, 0.0f,// 1
+       0.5f,  0.5f, -0.5f, 0.0f, 0.0f// 2
+      -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, // 3
+      -0.5f, -0.5f,  0.5f, 0.0f, 1.0f,// 4
+       0.5f, -0.5f,  0.5f, 0.0f, 1.0f,// 5
+       0.5f,  0.5f,  0.5f, 0.0f, 1.0f,// 6
+      -0.5f,  0.5f,  0.5f, 0.0f, 1.0f// 7
     };
 
     unsigned short indices[] = {
@@ -82,7 +83,7 @@ int main(){
 
     //paths
     const char *vs = "/Users/user/Developer/multiCraft/shaders/vertex.vs";
-    const char *fs = "/Users/user/Developer/multiCraft/shaders/color.fs";
+    const char *fs = "/Users/user/Developer/multiCraft/shaders/fragment.fs";
 
     if(shaders_init(vs,fs,handles) == 1) return safe_exit("Erreur shaders",window,context);
    
@@ -96,18 +97,22 @@ int main(){
 
     //camera portion
     Camera camera;
-    vec3s position = {0.0f,0.0f,1.0f};
+    vec3s position = {0.0f,0.0f,5.0f};
     vec3s look = {0.0f,0.0f,0.0f};
     initCamera(&camera,position,look);
 
     //tick
     Tick tick;
     initTime(&tick);
+
+    //texture 
+    unsigned int texture;
+    if(initTexture("/Users/user/Developer/multiCraft/sprites/block.png",&texture)==1) return safe_exit("Erreor Texture",window,context);
     while(loop){
         deltaTime(&tick);
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,handles[0],&matrix,&counter);
-        render(VAO,handles[0]);
+        render(VAO,handles[0],texture);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
         while(SDL_PollEvent(&event) == 1){

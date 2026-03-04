@@ -19,6 +19,8 @@ void ebo_init(unsigned int *EBO, unsigned short *data, size_t size){
     //vertex attribut
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,5 * sizeof(float),(void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
 }
 
 void vbo_ebo_destroy(unsigned int *VBO, unsigned int *EBO){
@@ -106,9 +108,10 @@ void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int pr
     glDeleteShader(fShader);
 }
 
-void render(unsigned int VAO, unsigned int program){
+void render(unsigned int VAO, unsigned int program, unsigned int texture){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program);
+    glBindTexture(GL_TEXTURE_2D,texture);
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES,36,GL_UNSIGNED_SHORT,0);
     glBindVertexArray(0);

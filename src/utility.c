@@ -52,12 +52,22 @@ int readFile(const char *path,char **content){
     //be careful while freeing
 }
 
+int64_t getTime(void){
+    struct timespec tms;
+
+    if(!timespec_get(&tms,TIME_UTC)) return -1;
+
+    int64_t micros = (tms.tv_sec * 1000000ULL) + (tms.tv_nsec/1000);
+
+    return micros;
+}
+
 void initTime(Tick *tick){
-    tick->before = SDL_GetTicks();
+    tick->before = getTime();
 }
 
 void deltaTime(Tick *tick){
-    tick->after = SDL_GetTicks();
+    tick->after = getTime();
     tick->delta = tick->after - tick->before;
     tick->before = tick->after;
 }

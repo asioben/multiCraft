@@ -23,6 +23,6 @@ int shaders_init(const char *vSrc,const char *fSrc, int *handles);
 void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int program);
 
 //RENDERING
-void render(unsigned int VAO, unsigned int program);
+void render(unsigned int VAO, unsigned int program, unsigned int texture);
 
 #endif
