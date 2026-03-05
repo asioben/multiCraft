@@ -17,8 +17,9 @@ void ebo_init(unsigned int *EBO, unsigned short *data, size_t size){
     //Copy the data into the buffer
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,size,data,GL_STATIC_DRAW);
     //vertex attribut
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(float),(void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,5 * sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
+    //tex coord attribut
     glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,5 * sizeof(float),(void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
 }
@@ -49,7 +50,7 @@ static int compileShader(const char *source, GLenum shaderType){
     //get the content of the src file
     value = readFile(source,&content);
     if(value == 1){
-        printf("Erreur Compilation de Shader ;(");
+        printf("Erreur Compilation de Shader ;");
         return -1;
     }
     glShaderSource(shader,1,&content,NULL);
@@ -111,7 +112,9 @@ void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int pr
 void render(unsigned int VAO, unsigned int program, unsigned int texture){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,texture);
+    glUniform1i(glGetUniformLocation(program,"ourTexture"),0);
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES,36,GL_UNSIGNED_SHORT,0);
     glBindVertexArray(0);

@@ -71,4 +71,5 @@ void cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 delta
     if(keys[SDL_SCANCODE_S]) camera->position = glms_vec3_sub(camera->position,glms_vec3_scale(camera->up,time*speed));
 
     camera->look = glms_vec3_add(camera->position,camera->forward);
+    //printf("(%f,%f,%f)\n",camera->look.x,camera->look.y,camera->look.z);
 }

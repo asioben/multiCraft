@@ -35,42 +35,65 @@ int main(){
     glClearColor(1.0f,0.0f,0.0f,1.0f);
 
     float vertices[] = {
+    // ===== BACK FACE (-Z) =====
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+
+    // ===== FRONT FACE (+Z) =====
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+
+    // ===== LEFT FACE (-X) =====
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    // ===== RIGHT FACE (+X) =====
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    // ===== BOTTOM FACE (-Y) =====
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    // ===== TOP FACE (+Y) =====
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f
+};
+
+    /**float vertices[] = {
       // Positions (x, y, z)
-      -0.5f, -0.5f, -0.5f, 1.0f, 1.0f,  // 0
-       0.5f, -0.5f, -0.5f, 1.0f, 0.0f,// 1
-       0.5f,  0.5f, -0.5f, 0.0f, 0.0f// 2
-      -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, // 3
-      -0.5f, -0.5f,  0.5f, 0.0f, 1.0f,// 4
-       0.5f, -0.5f,  0.5f, 0.0f, 1.0f,// 5
-       0.5f,  0.5f,  0.5f, 0.0f, 1.0f,// 6
-      -0.5f,  0.5f,  0.5f, 0.0f, 1.0f// 7
-    };
+      -0.5f, -0.5f, -0.5f,  // 0
+       0.5f, -0.5f, -0.5f,  // 1
+       0.5f,  0.5f, -0.5f,  // 2
+      -0.5f,  0.5f, -0.5f,  // 3
+      -0.5f, -0.5f,  0.5f,  // 4
+       0.5f, -0.5f,  0.5f,  // 5
+       0.5f,  0.5f,  0.5f,  // 6
+      -0.5f,  0.5f,  0.5f   // 7
+    };**/
 
     unsigned short indices[] = {
-    // Back face
-    0, 1, 2,
-    2, 3, 0,
-
-    // Front face
-    4, 5, 6,
-    6, 7, 4,
-
-    // Left face
-    4, 0, 3,
-    3, 7, 4,
-
-    // Right face
-    1, 5, 6,
-    6, 2, 1,
-
-    // Bottom face
-    4, 5, 1,
-    1, 0, 4,
-
-    // Top face
-    3, 2, 6,
-    6, 7, 3
+    0, 1, 2,   2, 3, 0,        // back
+    4, 5, 6,   6, 7, 4,        // front
+    8, 9,10,  10,11, 8,        // left
+   12,13,14,  14,15,12,        // right
+   16,17,18,  18,19,16,        // bottom
+   20,21,22,  22,23,20         // top
 };
+
+    generateCube(vertices,GRASS);
 
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0,WIDTH,HEIGHT);
@@ -130,9 +153,16 @@ int main(){
     vbo_ebo_destroy(&VBO,&EBO);
     vao_destroy(&VAO);
     shaders_destroy(handles[1],handles[2],handles[0]);
+    destroyTexture(&texture);
     SDL_GL_DestroyContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
 
     return 0;
 }
+
+/** GIANT TODO_LIST FOR COMMIT 8
+ * Todo 1: Normalize the uv coord in the generateSprite
+ * Todo 2: Make sure to copy in the right way the texCoord in the "matrix", finad a way
+ * Todo 3: Make the whole thing work, like I put grass and I get the a vertices with the uv textures
+ **/
