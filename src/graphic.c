@@ -26,8 +26,8 @@ void ebo_init(unsigned int *EBO, unsigned short *data, size_t size){
 
 void vbo_ebo_destroy(unsigned int *VBO, unsigned int *EBO){
     //Destroy the bufffer
-    glDeleteBuffers(1,VBO);
-    glDeleteBuffers(1,EBO);
+    if(VBO != NULL) glDeleteBuffers(1,VBO);
+    if(EBO != NULL) glDeleteBuffers(1,EBO);
 }
 
 void vao_init(unsigned int *VAO){

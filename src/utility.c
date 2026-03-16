@@ -71,3 +71,55 @@ void deltaTime(Tick *tick){
     tick->delta = tick->after - tick->before;
     tick->before = tick->after;
 }
+
+void fps_counter(int *fps, int *frames, Tick *timer){
+    timer->after = getTime();
+    timer->delta = timer->after - timer->before;
+    if(timer->delta >= 1000000){
+        timer->before = timer->after;
+        *fps = *frames;
+        *frames = 0;
+    }else{
+        *frames += 1;
+    }
+}
+
+void number_to_string(int number, char **string){
+    int power = (int)SDL_floor(SDL_log10(number));
+    int size = power + 1;
+    *string = malloc(size + 1);
+    int digit;
+    for (int i = 0; i < size; i++){
+        digit = (int)SDL_floor(number / SDL_pow(10,power));
+        number -= (int)SDL_pow(10,power) * digit;
+        power -= 1;
+       (*string)[i] = digit + 48;
+    }
+    (*string)[size] = '\0';
+}
+
+void concatenate_string(const char *a, const char *b, char **result){
+    size_t size[2] = {string_len(a),string_len(b)};
+    size_t len = size[0] + size[1] + 1;
+    *result = malloc(len);
+    int iterator[2] = {0,0};
+    for (int i = 0; i < len; i++){
+        if(i  <= (size[1] - 1)) {
+            (*result)[i] = a[iterator[0]];
+            iterator[0] += 1;
+        }else if (i  > (size[1] - 1) && i < (len - 1)){
+            (*result)[i] = b[iterator[1]];
+            iterator[1] += 1;
+        }else if (i  == (len - 1)){
+            (*result)[i] = '\0';
+        }
+     }
+}
+
+int string_len(const char *string){
+    int i = 0;
+    while (string[i] != '\0'){
+        i += 1;
+    }
+    return (i + 1);
+}

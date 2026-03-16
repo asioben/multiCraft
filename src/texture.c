@@ -9,10 +9,11 @@ int initTexture(const char* path, unsigned int *texture){
     //texture options
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     //load texture
     int width,height,channels;
+    //stbi_set_flip_vertically_on_load(1);
     unsigned char *data = stbi_load(path,&width,&height,&channels,0);
     if(!data){
         printf("Failed to load texture\n");
@@ -20,7 +21,7 @@ int initTexture(const char* path, unsigned int *texture){
         return 1;
     }
     GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width,height,0,GL_RGB,GL_UNSIGNED_BYTE,data);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width,height,0,format,GL_UNSIGNED_BYTE,data);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
     return 0;
@@ -30,92 +31,26 @@ void destroyTexture(unsigned int *texture){
     glDeleteTextures(1,texture);
 }
 
-void generateSprite(int ID, SDL_Point sheet, SDL_Point sprite, vec2s *uv){
-    int rows = (int)(sheet.x / sprite.x);
-    int columns = (int)(sheet.y / sprite.y);
+SDL_FRect generateSprite(int ID, SDL_Point sheet, SDL_Point sprite){
+    SDL_FRect uv;
+    
+    int columns = (int)(sheet.x / sprite.x);
 
-    int row = ((ID - (ID % rows)) / rows) +1;
-    int column = (ID % rows);
+    int row = ((ID - (ID % columns)) / columns);
+    int column = (ID % columns);
 
-    vec2s tex[4] = {
-        {column * sprite.x, row * sprite.y},
-        {(column * sprite.x) + sprite.x, row * sprite.y},
-        {column * sprite.x, (row * sprite.y) + sprite.y},
-        {(column * sprite.x) + sprite.x, (row * sprite.y) + sprite.y}
-    };
+    float u = (column * sprite.x) / (float)sheet.x;
+    float v = (row * sprite.y) / (float)sheet.y;
 
-    uv = tex;
-}
+    vec2s pixel = {1.0f/sheet.x, 1.0f/sheet.y};
 
-void generateCube(float *vertices, BlockType block){
-    SDL_Point sheet = {384,704};
-    SDL_Point sprite = {16,16};
-    float origin[] ={
-    // ===== BACK FACE (-Z) =====
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    u += pixel.x;
+    v += pixel.y;
 
-    // ===== FRONT FACE (+Z) =====
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    uv.x = u;
+    uv.y = v;
+    uv.w = ((float)sprite.x / (float)sheet.x) - pixel.x * 0.5f;
+    uv.h = ((float)sprite.y / (float)sheet.y) - pixel.y * 0.5f;
 
-    // ===== LEFT FACE (-X) =====
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    // ===== RIGHT FACE (+X) =====
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    // ===== BOTTOM FACE (-Y) =====
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    // ===== TOP FACE (+Y) =====
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f
-};
-    switch(block){
-        case GRASS:{
-            int spritesID[6] = {4,4,4,4,3,1};
-            vec2s texCoord[6][4];
-            int face = 0;
-            int counter = 0;
-            printf("////START");
-            for(int i = 0; i < 6; i++)generateSprite(spritesID[i],sprite,sheet,texCoord[i]);
-            for(int k = 0; k < 48; k++){
-                if(k % 2 == 0) {
-                    origin[3 + (5*(k/2))] = texCoord[face][counter].x;
-                    printf("(%f,",origin[3 + (5*(k/2))]);
-                }
-                if(k % 2 == 1) {
-                    origin[4 + (5*((k-1)/2))] = texCoord[face][counter].y;
-                    printf("%f)\n",origin[4 + (5*((k-1)/2))]);
-                }
-                if(k > 0){
-                    if(k % 8 == 0) {
-                        face += 1;
-                        counter = 0;
-                    }
-                    if(k % 2 == 0) counter += 1;
-                }
-            }
-        }break;
-        default: printf("Default texture");
-    }
-
-    vertices = origin;
-    printf("END/////");
+    return uv;
 }

@@ -2,6 +2,7 @@
 #include "../include/input.h"
 #include "../include/camera.h"
 #include "../include/texture.h"
+#include "../include/block.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -32,68 +33,20 @@ int main(){
 
     printf("OpenGL version: %s\n",version);
 
-    glClearColor(1.0f,0.0f,0.0f,1.0f);
-
-    float vertices[] = {
-    // ===== BACK FACE (-Z) =====
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-
-    // ===== FRONT FACE (+Z) =====
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-
-    // ===== LEFT FACE (-X) =====
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    // ===== RIGHT FACE (+X) =====
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    // ===== BOTTOM FACE (-Y) =====
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    // ===== TOP FACE (+Y) =====
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f
-};
-
-    /**float vertices[] = {
-      // Positions (x, y, z)
-      -0.5f, -0.5f, -0.5f,  // 0
-       0.5f, -0.5f, -0.5f,  // 1
-       0.5f,  0.5f, -0.5f,  // 2
-      -0.5f,  0.5f, -0.5f,  // 3
-      -0.5f, -0.5f,  0.5f,  // 4
-       0.5f, -0.5f,  0.5f,  // 5
-       0.5f,  0.5f,  0.5f,  // 6
-      -0.5f,  0.5f,  0.5f   // 7
-    };**/
+    glClearColor(0.529f,0.807f,0.922f,1.0f);
 
     unsigned short indices[] = {
-    0, 1, 2,   2, 3, 0,        // back
-    4, 5, 6,   6, 7, 4,        // front
-    8, 9,10,  10,11, 8,        // left
-   12,13,14,  14,15,12,        // right
-   16,17,18,  18,19,16,        // bottom
-   20,21,22,  22,23,20         // top
-};
+        0, 1, 2,   2, 3, 0,        // back
+        4, 5, 6,   6, 7, 4,        // front
+        8, 9,10,  10,11, 8,        // left
+        12,13,14,  14,15,12,        // right
+        16,17,18,  18,19,16,        // bottom
+        20,21,22,  22,23,20         // top
+    };
 
-    generateCube(vertices,GRASS);
+    float vertices[120] = {0};
+
+    generateCube(vertices,DIRT);
 
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0,WIDTH,HEIGHT);
@@ -131,7 +84,25 @@ int main(){
     //texture 
     unsigned int texture;
     if(initTexture("/Users/user/Developer/multiCraft/sprites/block.png",&texture)==1) return safe_exit("Erreor Texture",window,context);
-    while(loop){
+
+    //fps counter
+    int fps = 0;
+    int frames = 0;
+    Tick fps_timer;
+    initTime(&fps_timer);
+    char *fps_string = NULL;
+    char *string_fps = "FPS: ";
+    char *final_fps_string = NULL;
+    while(loop){ 
+        fps_counter(&fps,&frames,&fps_timer);
+        if(fps > 0 && frames == 0){ 
+           number_to_string(fps,&fps_string);
+           size_t test = string_len(string_fps);
+           concatenate_string(string_fps,fps_string,&final_fps_string);
+           SDL_SetWindowTitle(window,final_fps_string);
+           free(fps_string);
+           free(final_fps_string);
+        }
         deltaTime(&tick);
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,handles[0],&matrix,&counter);
@@ -161,8 +132,7 @@ int main(){
     return 0;
 }
 
-/** GIANT TODO_LIST FOR COMMIT 8
- * Todo 1: Normalize the uv coord in the generateSprite
- * Todo 2: Make sure to copy in the right way the texCoord in the "matrix", finad a way
- * Todo 3: Make the whole thing work, like I put grass and I get the a vertices with the uv textures
+/** GIANT TODO_LIST FOR COMMIT 10
+ * Make cube instances with world matrix
+ * Rewrite a bit the graphic layer (new buffers for instance and multiple textures (vertex (uv)))
  **/

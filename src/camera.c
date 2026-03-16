@@ -13,7 +13,7 @@ void initCamera(Camera *camera, vec3s position, vec3s look){
     camera->position = position;
     camera->look = look;
     //angle
-    camera->yaw = 0.0f;
+    camera->yaw = -1.57f;
     camera->pitch = 0.0f;
     //matrix
     //camera->View = glms_lookat(camera->position,camera->look,camera->up);

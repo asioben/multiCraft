@@ -29,9 +29,17 @@ void initTime(Tick *tick);
 
 void deltaTime(Tick *tick);
 
+void fps_counter(int *fps, int *frames, Tick *timer);
+
 int safe_exit(const char *message, SDL_Window *window, SDL_GLContext context);
 
 //BE CAREFUL AND FREE IT IN THE RIGHT MOMENT!!!
 int readFile(const char *path, char **content);
+
+void number_to_string(int number, char **string);
+
+void concatenate_string(const char *a, const char *b, char **result);
+
+int string_len(const char *string);
 
 #endif
