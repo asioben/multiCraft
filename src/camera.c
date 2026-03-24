@@ -36,7 +36,7 @@ void matrix_init(mat4s View, unsigned int program, unsigned int *matrix, int *co
     mat4 World;
     memcpy(World,World_.raw,sizeof(mat4));
     if(*counter == 0) {
-        *matrix = glGetUniformLocation(program,"MVP");
+        *matrix = glGetUniformLocation(program,"VP");
         *counter = 1;
     }
     glUniformMatrix4fv(*matrix,1,GL_FALSE,&World[0][0]);

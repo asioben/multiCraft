@@ -44,17 +44,20 @@ int main(){
         20,21,22,  22,23,20         // top
     };
 
-    float vertices[120] = {0};
-
-    generateCube(vertices,DIRT);
+    Mesh meshes[3];
 
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0,WIDTH,HEIGHT);
     //init  some objects
-    unsigned int VBO, VAO, EBO;
-    vao_init(&VAO);
-    vbo_init(&VBO,vertices,sizeof(vertices));
-    ebo_init(&EBO,indices,sizeof(indices));
+    for(int i = 0; i < 3; i++){
+        for (int j = 0; j < 36; j++) meshes[i].indices[j] = indices[j];
+        generateCube(meshes[i].vertices,i);
+        /**vao_init(&meshes[i].VAO);
+        vbo_init(&meshes[i].VBO,meshes[i].vertices,sizeof(meshes[i].vertices));
+        ebo_init(&meshes[i].EBO,meshes[i].indices,sizeof(meshes[i].indices));**/
+        vertex_init();
+    }
+   
     int handles[3] = {0,0,0};
 
     //paths
@@ -74,7 +77,7 @@ int main(){
     //camera portion
     Camera camera;
     vec3s position = {0.0f,0.0f,5.0f};
-    vec3s look = {0.0f,0.0f,0.0f};
+    vec3s look = {0.0f,2.0f,0.0f};
     initCamera(&camera,position,look);
 
     //tick
@@ -93,6 +96,31 @@ int main(){
     char *fps_string = NULL;
     char *string_fps = "FPS: ";
     char *final_fps_string = NULL;
+
+    //model matrix
+    float x = 0.0f;
+    float z = 0.0f;
+    for(int j = 0; j < 3; j++){
+        vec3s positions[100];
+        for(int i = 0; i < 100; i++){
+          if(i % 10 == 0){
+            x = 0.0f;
+            z -= 1.0f;
+          }
+          positions[i].x = x;
+          positions[i].y = 0.0f;
+          positions[i].z = z;
+          x += 1;
+          glm_mat4_identity(meshes[j].model[i]);
+          vec3 position_ = {positions[i].x,positions[i].y,positions[i].z};
+          glm_translate(meshes[j].model[i],position_);
+      }
+      instance_init(meshes[j].VAO,&meshes[j].instance,meshes[j].model,sizeof(mat4) * 100);
+    }
+
+
+
+    //MAIN LOOP
     while(loop){ 
         fps_counter(&fps,&frames,&fps_timer);
         if(fps > 0 && frames == 0){ 
@@ -106,7 +134,7 @@ int main(){
         deltaTime(&tick);
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,handles[0],&matrix,&counter);
-        render(VAO,handles[0],texture);
+        render(meshes,handles[0],texture);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
         while(SDL_PollEvent(&event) == 1){
@@ -121,8 +149,11 @@ int main(){
         }
     }
     
-    vbo_ebo_destroy(&VBO,&EBO);
-    vao_destroy(&VAO);
+    for(int i = 0; i < 3; i++){
+        vbo_ebo_destroy(&meshes[i].VBO,&meshes[i].EBO);
+        vbo_ebo_destroy(&meshes[i].instance,NULL);
+        vao_destroy(&meshes[i].VAO);
+    }
     shaders_destroy(handles[1],handles[2],handles[0]);
     destroyTexture(&texture);
     SDL_GL_DestroyContext(context);

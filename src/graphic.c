@@ -1,6 +1,6 @@
 #include "../include/graphic.h"
 
-void vbo_init(unsigned int *VBO, float *data, size_t size){
+void vbo_init(unsigned int *VBO, void *data, size_t size){
     //Generate buffer ID
     glGenBuffers(1, VBO);
     //Bind 
@@ -9,25 +9,46 @@ void vbo_init(unsigned int *VBO, float *data, size_t size){
     glBufferData(GL_ARRAY_BUFFER,size,data,GL_STATIC_DRAW);
 }
 
-void ebo_init(unsigned int *EBO, unsigned short *data, size_t size){
+void ebo_init(unsigned int *EBO, void *data, size_t size){
     //Generate buffer ID
     glGenBuffers(1, EBO);
     //Bind 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
     //Copy the data into the buffer
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,size,data,GL_STATIC_DRAW);
+}
+
+void vertex_init(void){
     //vertex attribut
     glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,5 * sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
     //tex coord attribut
     glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,5 * sizeof(float),(void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
+    //glBindVertexArray(0);
+}
+
+void instance_init(unsigned int VAO, unsigned int *VBO, void *data, size_t size){
+    glBindVertexArray(VAO);
+    //Generate buffer ID
+    glGenBuffers(1, VBO);
+    //Bind 
+    glBindBuffer(GL_ARRAY_BUFFER, *VBO);
+    //Copy the data into the buffer
+    glBufferData(GL_ARRAY_BUFFER,size,data,GL_STATIC_DRAW);
+    //matrix attribut
+    for(int i = 0; i < 4; i++){
+        glEnableVertexAttribArray(2 + i);
+        glVertexAttribPointer(2 + i,4,GL_FLOAT,GL_FALSE,sizeof(mat4),(void*)(i * sizeof(vec4)));
+        glVertexAttribDivisor(2 + i,1);
+    }
+    glBindVertexArray(0);
 }
 
 void vbo_ebo_destroy(unsigned int *VBO, unsigned int *EBO){
     //Destroy the bufffer
-    if(VBO != NULL) glDeleteBuffers(1,VBO);
-    if(EBO != NULL) glDeleteBuffers(1,EBO);
+    if(VBO != NULL)glDeleteBuffers(1,VBO);
+    if(EBO != NULL)glDeleteBuffers(1,EBO);
 }
 
 void vao_init(unsigned int *VAO){
@@ -39,7 +60,7 @@ void vao_init(unsigned int *VAO){
 
 void vao_destroy(unsigned int *VAO){
     //destroy
-    glDeleteVertexArrays(1,VAO);
+    if(VAO != NULL) glDeleteVertexArrays(1,VAO);
 }
 
 static int compileShader(const char *source, GLenum shaderType){
@@ -109,13 +130,16 @@ void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int pr
     glDeleteShader(fShader);
 }
 
-void render(unsigned int VAO, unsigned int program, unsigned int texture){
+void render(Mesh *meshes, unsigned int program, unsigned int texture){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,texture);
     glUniform1i(glGetUniformLocation(program,"ourTexture"),0);
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES,36,GL_UNSIGNED_SHORT,0);
+    for(int i = 0; i < 3; i++){
+        glBindVertexArray(meshes[i].VAO);
+        //printf("%i\n",meshes[i].VAO);
+        glDrawElementsInstanced(GL_TRIANGLES,36,GL_UNSIGNED_SHORT,0,100);
+    }
     glBindVertexArray(0);
 }

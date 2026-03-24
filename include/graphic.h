@@ -1,12 +1,30 @@
 #ifndef GRAPHIC_H
 #define GRAPHIC_H
 
+#include <cglm/struct.h>
+
 #include "utility.h"
 
-//VBO
-void vbo_init(unsigned int *VBO, float *data, size_t size);
+typedef struct mesh_{
+    GLuint VBO;
+    GLuint VAO;
+    GLuint EBO;
+    GLuint instance;
+    float vertices[120];
+    mat4 model[100];
+    unsigned short indices[36];
+    size_t indices_;
+    size_t vertices_;
+} Mesh;
 
-void ebo_init(unsigned int *EBO, unsigned short *data, size_t size);
+//VBO
+void vbo_init(unsigned int *VBO, void *data, size_t size);
+
+void ebo_init(unsigned int *EBO, void *data, size_t size);
+
+void instance_init(unsigned int VAO, unsigned int *VBO, void *data, size_t size);
+
+void vertex_init(void);
 
 void vbo_ebo_destroy(unsigned int *VBO, unsigned int *EBO);
 
@@ -23,6 +41,6 @@ int shaders_init(const char *vSrc,const char *fSrc, int *handles);
 void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int program);
 
 //RENDERING
-void render(unsigned int VAO, unsigned int program, unsigned int texture);
+void render(Mesh *meshes, unsigned int program, unsigned int texture);
 
 #endif

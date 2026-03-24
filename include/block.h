@@ -5,7 +5,8 @@
 
 typedef enum {
     GRASS,
-    DIRT
+    DIRT,
+    STONE
 }BlockID;
 
 void generateCube(float *vertices, BlockID block);

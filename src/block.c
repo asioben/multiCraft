@@ -23,6 +23,14 @@ void generateCube(float *vertices, BlockID block){
             spritesID[4] = 2;
             spritesID[5] = 2;
         }break;
+        case STONE:{
+            spritesID[0] = 1;
+            spritesID[1] = 1;
+            spritesID[2] = 1;
+            spritesID[3] = 1;
+            spritesID[4] = 1;
+            spritesID[5] = 1;
+        }break;
         default:{
             printf("Default texture");
             spritesID[0] = 3;
