@@ -3,7 +3,7 @@
 
 #include "utility.h"
 
-typedef struct mouse_{
+typedef struct {
     SDL_Point position;
     SDL_Point motion;
     int left;

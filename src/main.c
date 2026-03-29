@@ -3,6 +3,7 @@
 #include "../include/camera.h"
 #include "../include/texture.h"
 #include "../include/block.h"
+#include "../include/chunk.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -44,19 +45,14 @@ int main(){
         20,21,22,  22,23,20         // top
     };
 
-    Mesh meshes[3];
-
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0,WIDTH,HEIGHT);
-    //init  some objects
-    for(int i = 0; i < 3; i++){
-        for (int j = 0; j < 36; j++) meshes[i].indices[j] = indices[j];
-        generateCube(meshes[i].vertices,i);
-        /**vao_init(&meshes[i].VAO);
-        vbo_init(&meshes[i].VBO,meshes[i].vertices,sizeof(meshes[i].vertices));
-        ebo_init(&meshes[i].EBO,meshes[i].indices,sizeof(meshes[i].indices));**/
-        vertex_init();
-    }
+
+    Chunk chunk;
+    generateChunk(&chunk);
+
+    Mesh *meshes;
+    generateMeshes(&chunk,&meshes,indices);
    
     int handles[3] = {0,0,0};
 
@@ -97,29 +93,6 @@ int main(){
     char *string_fps = "FPS: ";
     char *final_fps_string = NULL;
 
-    //model matrix
-    float x = 0.0f;
-    float z = 0.0f;
-    for(int j = 0; j < 3; j++){
-        vec3s positions[100];
-        for(int i = 0; i < 100; i++){
-          if(i % 10 == 0){
-            x = 0.0f;
-            z -= 1.0f;
-          }
-          positions[i].x = x;
-          positions[i].y = 0.0f;
-          positions[i].z = z;
-          x += 1;
-          glm_mat4_identity(meshes[j].model[i]);
-          vec3 position_ = {positions[i].x,positions[i].y,positions[i].z};
-          glm_translate(meshes[j].model[i],position_);
-      }
-      instance_init(meshes[j].VAO,&meshes[j].instance,meshes[j].model,sizeof(mat4) * 100);
-    }
-
-
-
     //MAIN LOOP
     while(loop){ 
         fps_counter(&fps,&frames,&fps_timer);
@@ -149,11 +122,8 @@ int main(){
         }
     }
     
-    for(int i = 0; i < 3; i++){
-        vbo_ebo_destroy(&meshes[i].VBO,&meshes[i].EBO);
-        vbo_ebo_destroy(&meshes[i].instance,NULL);
-        vao_destroy(&meshes[i].VAO);
-    }
+    destroyChunks(&chunk);
+    destroyMeshes(&meshes,1);
     shaders_destroy(handles[1],handles[2],handles[0]);
     destroyTexture(&texture);
     SDL_GL_DestroyContext(context);
@@ -163,7 +133,9 @@ int main(){
     return 0;
 }
 
-/** GIANT TODO_LIST FOR COMMIT 10
- * Make cube instances with world matrix
- * Rewrite a bit the graphic layer (new buffers for instance and multiple textures (vertex (uv)))
+/** GIANT TODO LIST FOR COMMIT 12
+ * Improve the chunk manager functions to multiple functions
+ * Do some optimisation to create meshes with the cube we see
+ * Btw the optimisation would be the blocks we can see outside the chunk
+ * And also probably an another optimisation
  **/

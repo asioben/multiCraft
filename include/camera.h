@@ -5,7 +5,7 @@
 
 #include "input.h"
 
-typedef struct camera_{
+typedef struct{
     //camera general
     vec3s look;
     vec3s position;

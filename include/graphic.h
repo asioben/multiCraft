@@ -5,13 +5,13 @@
 
 #include "utility.h"
 
-typedef struct mesh_{
+typedef struct {
     GLuint VBO;
     GLuint VAO;
     GLuint EBO;
     GLuint instance;
     float vertices[120];
-    mat4 model[100];
+    mat4 *model;
     unsigned short indices[36];
     size_t indices_;
     size_t vertices_;
