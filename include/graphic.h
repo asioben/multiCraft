@@ -15,7 +15,10 @@ typedef struct {
     unsigned short indices[36];
     size_t indices_;
     size_t vertices_;
+
+    GLuint size;
 } Mesh;
+
 
 //VBO
 void vbo_init(unsigned int *VBO, void *data, size_t size);
@@ -41,6 +44,6 @@ int shaders_init(const char *vSrc,const char *fSrc, int *handles);
 void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int program);
 
 //RENDERING
-void render(Mesh *meshes, unsigned int program, unsigned int texture);
+void render(Mesh *meshes, int size, unsigned int program, unsigned int texture);
 
 #endif

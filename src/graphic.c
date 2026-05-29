@@ -35,7 +35,7 @@ void instance_init(unsigned int VAO, unsigned int *VBO, void *data, size_t size)
     //Bind 
     glBindBuffer(GL_ARRAY_BUFFER, *VBO);
     //Copy the data into the buffer
-    glBufferData(GL_ARRAY_BUFFER,size,data,GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,size,data,GL_DYNAMIC_DRAW);
     //matrix attribut
     for(int i = 0; i < 4; i++){
         glEnableVertexAttribArray(2 + i);
@@ -130,16 +130,15 @@ void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int pr
     glDeleteShader(fShader);
 }
 
-void render(Mesh *meshes, unsigned int program, unsigned int texture){
+void render(Mesh *meshes, int size, unsigned int program, unsigned int texture){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(program);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D,texture);
     glUniform1i(glGetUniformLocation(program,"ourTexture"),0);
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < size; i++){
         glBindVertexArray(meshes[i].VAO);
-        //printf("%i\n",meshes[i].VAO);
-        glDrawElementsInstanced(GL_TRIANGLES,36,GL_UNSIGNED_SHORT,0,100);
+        glDrawElementsInstanced(GL_TRIANGLES,36,GL_UNSIGNED_SHORT,0,meshes[i].size);
     }
     glBindVertexArray(0);
 }

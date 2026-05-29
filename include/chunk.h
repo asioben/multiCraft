@@ -3,10 +3,11 @@
 
 #include "block.h"
 #include "graphic.h"
+#include "perlin.h"
 
-#define CHUNK_WIDTH 2
-#define CHUNK_HEIGHT 2
-#define CHUNK_DEPTH 2
+#define CHUNK_WIDTH 16
+#define CHUNK_HEIGHT 16
+#define CHUNK_DEPTH 16
 
 typedef struct{
     BlockID type;
@@ -15,7 +16,7 @@ typedef struct{
 
 typedef struct{
     //blocks info
-    Block blocks[CHUNK_DEPTH*CHUNK_HEIGHT*CHUNK_WIDTH];
+    Block *blocks;
     GLuint size;
     //chunk manager functions
     bool update;

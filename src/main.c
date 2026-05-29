@@ -107,7 +107,7 @@ int main(){
         deltaTime(&tick);
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,handles[0],&matrix,&counter);
-        render(meshes,handles[0],texture);
+        render(meshes,chunk.size,handles[0],texture);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
         while(SDL_PollEvent(&event) == 1){
@@ -133,7 +133,7 @@ int main(){
     return 0;
 }
 
-/** GIANT TODO LIST FOR COMMIT 12
+/** GIANT TODO LIST FOR COMMIT 13
  * Improve the chunk manager functions to multiple functions
  * Do some optimisation to create meshes with the cube we see
  * Btw the optimisation would be the blocks we can see outside the chunk

@@ -4,6 +4,7 @@
 #include "texture.h"
 
 typedef enum {
+    AIR,
     GRASS,
     DIRT,
     STONE
