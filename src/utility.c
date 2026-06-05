@@ -1,7 +1,7 @@
 #include "../include/utility.h"
 
 int safe_exit(const char *message, SDL_Window *window, SDL_GLContext context){
-    printf("%s: %s\n",message,SDL_GetError());
+    if(message != NULL) printf("%s: %s\n",message,SDL_GetError());
     if(context != NULL) SDL_GL_DestroyContext(context);
     if(window != NULL) SDL_DestroyWindow(window);
     SDL_Quit();
@@ -122,4 +122,27 @@ int string_len(const char *string){
         i += 1;
     }
     return (i + 1);
+}
+
+int safe_return(const char *msg){
+    if(msg != NULL){
+        printf(msg);
+    }
+    return 0;
+}
+
+int random_(int min, int max){
+    int result,low,high = 0;
+
+    if(min > max){
+        low = max + 1;
+        high = min;
+    }else{
+        low = min;
+        high = max + 1;
+    }
+
+    result = (rand() % (high - low)) + low;
+
+    return result;
 }

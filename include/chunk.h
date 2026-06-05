@@ -15,6 +15,13 @@ typedef struct{
 }Block;
 
 typedef struct{
+    BlockID *type;
+    int counter;
+    int capacity;
+    int *sizes;
+}BIDS; //Block Id struct that mimic a vector
+
+typedef struct{
     //blocks info
     Block *blocks;
     GLuint size;
@@ -25,14 +32,27 @@ typedef struct{
     BlockID *types;
     GLuint *meshSize;
     GLuint meshesSize;
+    int **models;
 }Chunk;
 
-void generateChunk(Chunk *chunk);
+int insideBIDS(BIDS *types, BlockID type, int *element);
 
-void generateMeshes(Chunk *chunk, Mesh **meshes, unsigned short *indices);
+int updateBIDS(BIDS *types, BlockID *types_, int size, int *meshSize);
+
+int generateChunk(Chunk *chunk, vec3 start, BIDS **types, int seed);
+
+int generateChunks(Chunk *chunks, BIDS **types);
+
+Block * generateVisibleBlocks(Chunk *chunk,int *blocks_size);
+
+int generateMeshes(Chunk *chunk);
+
+int concatenateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
 
 void destroyChunks(Chunk *chunks);
 
 void destroyMeshes(Mesh **meshes, int size);
+
+void destroyBIDS(BIDS **types);
 
 #endif

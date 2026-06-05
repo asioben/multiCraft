@@ -48,10 +48,17 @@ void concatenate_string(const char *a, const char *b, char **result);
 
 int string_len(const char *string);
 
-//VECTOR
+/*
+//VECTOR ???
 typedef struct{
     size_t size;
     size_t capacity;
-}Vector;
+}Vector;*/
+
+//safe return
+int safe_return(const char *msg);
+
+//random function
+int random_(int min, int max);
 
 #endif

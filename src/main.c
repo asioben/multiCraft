@@ -8,6 +8,11 @@
 #define WIDTH 800
 #define HEIGHT 600
 
+static void silent_failure(bool *loop, const char *msg){
+    if(msg != NULL) printf(msg);
+    loop = false;
+}
+
 int main(){
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0)return(safe_exit("Erreur SDL",NULL,NULL));
@@ -48,12 +53,20 @@ int main(){
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0,WIDTH,HEIGHT);
 
-    Chunk chunk;
-    generateChunk(&chunk);
+    Chunk chunks[9];
+    BIDS *bid = NULL;
+    if(generateChunks(chunks,&bid) == 0)silent_failure(&loop,"Chunks failed\n");
 
-    Mesh *meshes;
-    generateMeshes(&chunk,&meshes,indices);
+    Mesh *meshes = NULL;
    
+    for(int y = 0; y < 9; y++){
+        if(generateMeshes(&chunks[y]) == 0)silent_failure(&loop,"Meshes failed\n");   
+    }
+    
+    if(concatenateMeshes(chunks,&meshes,bid,9,indices) == 0) silent_failure(&loop,"Concatenation of meshes failed\n");
+   
+    
+
     int handles[3] = {0,0,0};
 
     //paths
@@ -72,7 +85,7 @@ int main(){
 
     //camera portion
     Camera camera;
-    vec3s position = {0.0f,0.0f,5.0f};
+    vec3s position = {24.0f,16.0f,24.0f};
     vec3s look = {0.0f,2.0f,0.0f};
     initCamera(&camera,position,look);
 
@@ -95,6 +108,7 @@ int main(){
 
     //MAIN LOOP
     while(loop){ 
+        //printf("loop\n");
         fps_counter(&fps,&frames,&fps_timer);
         if(fps > 0 && frames == 0){ 
            number_to_string(fps,&fps_string);
@@ -107,7 +121,7 @@ int main(){
         deltaTime(&tick);
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,handles[0],&matrix,&counter);
-        render(meshes,chunk.size,handles[0],texture);
+        render(meshes,3,handles[0],texture);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
         while(SDL_PollEvent(&event) == 1){
@@ -122,7 +136,8 @@ int main(){
         }
     }
     
-    destroyChunks(&chunk);
+    destroyBIDS(&bid);
+    for(int z = 0; z < 9; z++){destroyChunks(&chunks[z]);}
     destroyMeshes(&meshes,1);
     shaders_destroy(handles[1],handles[2],handles[0]);
     destroyTexture(&texture);
@@ -133,9 +148,6 @@ int main(){
     return 0;
 }
 
-/** GIANT TODO LIST FOR COMMIT 13
- * Improve the chunk manager functions to multiple functions
- * Do some optimisation to create meshes with the cube we see
- * Btw the optimisation would be the blocks we can see outside the chunk
- * And also probably an another optimisation
+/** GIANT TODO LIST FOR COMMIT ?
+ *
  **/
