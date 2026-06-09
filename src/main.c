@@ -60,7 +60,7 @@ int main(){
     Mesh *meshes = NULL;
    
     for(int y = 0; y < 9; y++){
-        if(generateMeshes(&chunks[y]) == 0)silent_failure(&loop,"Meshes failed\n");   
+        if(generateMeshes(&chunks[y],bid) == 0)silent_failure(&loop,"Meshes failed\n");   
     }
     
     if(concatenateMeshes(chunks,&meshes,bid,9,indices) == 0) silent_failure(&loop,"Concatenation of meshes failed\n");
@@ -149,5 +149,12 @@ int main(){
 }
 
 /** GIANT TODO LIST FOR COMMIT ?
- *
+ * For the next commit 
+ * I'd need to work on my perlin noise generation
+ * or world generation in general
+ * And test my generateVisibleBlocks optimisation (DONE partially)
+ * I think that would be it
+ * For what's done:
+ * the mesh logic for the generateVisibleBlocks is done
+ * I'd need to maybe modified generateVisibleBlocks
  **/

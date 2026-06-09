@@ -12,6 +12,7 @@
 typedef struct{
     BlockID type;
     mat4 model;
+    int height;
 }Block;
 
 typedef struct{
@@ -33,6 +34,7 @@ typedef struct{
     GLuint *meshSize;
     GLuint meshesSize;
     int **models;
+    int minHeight;
 }Chunk;
 
 int insideBIDS(BIDS *types, BlockID type, int *element);
@@ -43,9 +45,9 @@ int generateChunk(Chunk *chunk, vec3 start, BIDS **types, int seed);
 
 int generateChunks(Chunk *chunks, BIDS **types);
 
-Block * generateVisibleBlocks(Chunk *chunk,int *blocks_size);
+int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types);
 
-int generateMeshes(Chunk *chunk);
+int generateMeshes(Chunk *chunk, BIDS *types);
 
 int concatenateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
 
