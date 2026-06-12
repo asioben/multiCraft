@@ -1,5 +1,25 @@
 #include "../include/chunk.h"
 
+int initBIDS(BIDS **types){
+    if(*types != NULL){
+         destroyBIDS(types); 
+         (*types) = NULL;
+    }
+    if(*types == NULL){
+        (*types) = malloc(1 * sizeof(BIDS));
+        if(*types == NULL) return safe_return("BIDS is not allocated\n");
+        (*types)->capacity = 3;
+        (*types)->type = malloc((*types)->capacity * sizeof(BlockID));
+        (*types)->type[0] = AIR;
+        (*types)->type[1] = AIR;
+        (*types)->type[2] = AIR;
+        if((*types)->type == NULL) return safe_return("BIDS type ais not allocated\n");
+        (*types)->sizes = calloc((*types)->capacity,sizeof(int));
+        if((*types)->sizes == NULL) return safe_return("BIDS sizes is not allocated\n");
+        (*types)->counter = -1;
+    }
+}
+
 int insideBIDS(BIDS *types, BlockID type, int *element){
     for(int i = 0; i <= types->counter; i++){
         *element = i;
@@ -51,21 +71,9 @@ int updateBIDS(BIDS *types, BlockID *types_, int size, int *meshSize){
     return 1;
 }
 
-int generateChunk(Chunk *chunk, vec3 start, BIDS **types, int seed){
+int generateChunk(Chunk *chunk, BIDS **types, int seed){
     //if(chunk != NULL) return NULL;
-    if(*types == NULL){
-        (*types) = malloc(1 * sizeof(BIDS));
-        if(*types == NULL) return safe_return("BIDS is not allocated\n");
-        (*types)->capacity = 3;
-        (*types)->type = malloc((*types)->capacity * sizeof(BlockID));
-        (*types)->type[0] = AIR;
-        (*types)->type[1] = AIR;
-        (*types)->type[2] = AIR;
-        if((*types)->type == NULL) return safe_return("BIDS type ais not allocated\n");
-        (*types)->sizes = calloc((*types)->capacity,sizeof(int));
-        if((*types)->sizes == NULL) return safe_return("BIDS sizes is not allocated\n");
-        (*types)->counter = -1;
-    }
+    
     int counter = 0;
     int fullSize = CHUNK_DEPTH * CHUNK_HEIGHT * CHUNK_WIDTH;
     chunk->meshesSize = 3;
@@ -85,7 +93,10 @@ int generateChunk(Chunk *chunk, vec3 start, BIDS **types, int seed){
     for(int i = 0; i < CHUNK_WIDTH; i++){
         for(int j = 0; j < CHUNK_DEPTH; j++){
             for(int k = 0; k < CHUNK_HEIGHT; k++){
-                float noise = fractalPerlin2D(i,j,0.01f,5,0.5f,seed);
+                vec3 position = {i,k,j};
+                vec3 start = {chunk->start.x,0,chunk->start.z};
+                glm_vec3_add(position,start,position);
+                float noise = fractalPerlin2D(position[0],j,0.01f,10,0.5f,seed);
                 int height = (int)((noise + 1.0f) * 15);
                 if(k == height) {
                     chunk->blocks[counter].type = GRASS;
@@ -103,8 +114,6 @@ int generateChunk(Chunk *chunk, vec3 start, BIDS **types, int seed){
                 if(chunk->minHeight == 0 || height < chunk->minHeight) chunk->minHeight = height;
                 chunk->blocks[counter].height = k;
                 glm_mat4_identity(chunk->blocks[counter].model);
-                vec3 position = {i,k,j};
-                glm_vec3_add(position,start,position);
                 glm_translate(chunk->blocks[counter].model,position);
                 counter += 1;
             }
@@ -117,17 +126,6 @@ int generateChunk(Chunk *chunk, vec3 start, BIDS **types, int seed){
     chunk->current = true;
     chunk->update = true;
 
-    return 1;
-}
-
-int generateChunks(Chunk *chunks, BIDS **types){
-    float x[9] = {0,16,32,0,16,32,0,16,32};
-    float z[9] = {0,0,0,16,16,16,32,32,32};
-    int seed = random_(1,10);
-    for(int i = 0; i < 9; i++){
-        vec3 start = {x[i],0,z[i]}; 
-        if(generateChunk(&chunks[i],start,types,(seed+(20*i))) == 0) return safe_return("Generation of the chunk failed\n");
-    }
     return 1;
 }
 
@@ -149,7 +147,6 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
             }
            }
            blocks[block_counter] = i;
-            
            updateBIDS(types,&chunk->blocks[i].type,1,&meshSize);
         }
     }
@@ -162,9 +159,11 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
 int generateMeshes(Chunk *chunk, BIDS *types){
     int blocks_size = -1;
     int before_counter = types->counter;
+    if(before_counter < 0) before_counter = 0;
     int before_sizes[types->counter + 1];
     for(int v = 0; v <= types->counter; v++) before_sizes[v] = types->sizes[v];
     int *blocks = generateVisibleBlocks(chunk,&blocks_size,types);
+    if(chunk->models != NULL) return 1;
     for(int w = 0; w < chunk->meshesSize; w++){
         chunk->meshSize[w] = 0;
         chunk->types[w] = AIR;
@@ -174,12 +173,18 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     for(int x = 0; x <= types->counter; x++){
         if((types->sizes[x] - before_sizes[x]) > 0){
             chunk->meshesSize += 1;
-            chunk->meshSize[x] += types->sizes[x] - before_sizes[x];
-        }if(before_counter < x) chunk->meshSize[x] += types->sizes[x];
+            if(before_counter < x) chunk->meshSize[x] += types->sizes[x];
+            else chunk->meshSize[x] += types->sizes[x] - before_sizes[x];
+        }
     }
-
     if(chunk->models == NULL) chunk->models = malloc(chunk->meshesSize * sizeof(int*));
-    else return 0;
+    if(chunk->models == NULL) return safe_return("Allocate models failed\n");
+    //printf("%i\n",chunk->meshesSize); 
+        
+    
+    //in case the chunk update we need to change that
+    //PLEASE dont forget that 
+    //pLEAAAse
     if((chunk->models) == NULL) return safe_return("Models failed\n");
     for(int i = 0; i < chunk->meshesSize; i++){
         chunk->models[i] = malloc(chunk->meshSize[i] * sizeof(int));
@@ -187,10 +192,12 @@ int generateMeshes(Chunk *chunk, BIDS *types){
         if(chunk->models[i] == NULL) return safe_return("Models failed AGAIN !\n");
             int counter = 0;
             for(int k = 0; k <= blocks_size; k++){
+                //if(i == 0 && k == 0)printf("%i\n",blocks_size);
                if(chunk->blocks[blocks[k]].type == types->type[i]){
                  chunk->models[i][counter] = blocks[k];
                  counter += 1;
                 }
+                //if(k == blocks_size) printf("%i,%i\n",counter,chunk->meshSize[i]);
              }
     }
     free(blocks);
@@ -198,10 +205,12 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     return 1;
 }
 
-int concatenateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices){
-    if(*meshes == NULL) *meshes = malloc((types->counter + 1) * sizeof(Mesh));
-    else return 0;
-    if(*meshes == NULL) return 0;
+int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices){
+    if(*meshes != NULL){
+       destroyMeshes(meshes,1);
+    }
+    *meshes = malloc((types->counter + 1) * sizeof(Mesh));
+    if(*meshes == NULL) return safe_return("Allocation of meshes failed");
 
     for(int i = 0; i <= types->counter; i++){
         for (int j = 0; j < 36; j++) (*meshes)[i].indices[j] = indices[j];
@@ -215,10 +224,12 @@ int concatenateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int size, unsign
         (*meshes)[i].model = malloc(types->sizes[i] * sizeof(mat4));
         if((*meshes)[i].model == NULL) return safe_return("Model failed");
         for(int j = 0; j < size; j++){
-            for(int k = 0; k < chunk[j].meshesSize; k++){
-                if(chunk[j].types[k] == types->type[i]){
-                    if(chunk[j].meshSize[k] > 0) for(int m = 0; m < chunk[j].meshSize[k]; m++){
-                        glm_mat4_copy(chunk[j].blocks[chunk[j].models[k][m]].model,(*meshes)[i].model[counter]);
+            for(int k = 0; k < chunk[j]->meshesSize; k++){
+                if(chunk[j]->types[k] == types->type[i]){
+                    if(chunk[j]->meshSize[k] > 0) for(int m = 0; m < chunk[j]->meshSize[k]; m++){
+                        //if(m == 0 && k == 1 && j == 0)printf("e%i\n",types->sizes[1]);
+                        //printf("%i,%i,%i\n",m, chunk[j]->models[k][m],j);
+                        glm_mat4_copy(chunk[j]->blocks[chunk[j]->models[k][m]].model,(*meshes)[i].model[counter]);
                         counter += 1;
                     }
                 }
@@ -235,9 +246,9 @@ void destroyChunks(Chunk *chunks){
         free(chunks->types);
         free(chunks->blocks);
         for(int i = 0; i < chunks->meshesSize; i++){
-            if(chunks->meshSize[i] != 0) free(chunks->models[i]);
+            if(chunks->models != NULL) free(chunks->models[i]);
         }
-        free(chunks->models);
+        if(chunks->models != NULL)free(chunks->models);
 }
 
 void destroyMeshes(Mesh **meshes, int size){

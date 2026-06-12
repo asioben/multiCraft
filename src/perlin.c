@@ -10,7 +10,7 @@ float perlin2D(float x, float z, float frequency, int seed){
     return stb_perlin_noise3(x_,0,z_,0.0f,0.0f,0.0f);
 }
 
-float fractalPerlin2D(float x, float z, float frequency, float octave, float persistence, int seed){
+float fractalPerlin2D(float x, float z, float frequency, int octave, float persistence, int seed){
     float total = 0.0f;
     float amplitude = 1.0f;
     float max = 0.0f;

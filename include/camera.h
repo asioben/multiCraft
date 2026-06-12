@@ -26,6 +26,6 @@ mat4s worldMatrix(mat4s View);
 
 void matrix_init(mat4s View , unsigned int program, unsigned int *matrix, int *counter);
 
-void cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaTime);
+int cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaTime);
 
 #endif

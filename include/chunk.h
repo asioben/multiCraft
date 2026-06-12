@@ -29,6 +29,7 @@ typedef struct{
     //chunk manager functions
     bool update;
     bool current;
+    vec3s start;
     //mesh
     BlockID *types;
     GLuint *meshSize;
@@ -37,19 +38,19 @@ typedef struct{
     int minHeight;
 }Chunk;
 
+int initBIDS(BIDS **types);
+
 int insideBIDS(BIDS *types, BlockID type, int *element);
 
 int updateBIDS(BIDS *types, BlockID *types_, int size, int *meshSize);
 
-int generateChunk(Chunk *chunk, vec3 start, BIDS **types, int seed);
-
-int generateChunks(Chunk *chunks, BIDS **types);
+int generateChunk(Chunk *chunk, BIDS **types, int seed);
 
 int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types);
 
 int generateMeshes(Chunk *chunk, BIDS *types);
 
-int concatenateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
+int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
 
 void destroyChunks(Chunk *chunks);
 

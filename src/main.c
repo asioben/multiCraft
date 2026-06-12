@@ -4,6 +4,7 @@
 #include "../include/texture.h"
 #include "../include/block.h"
 #include "../include/chunk.h"
+#include "../include/chunkManager.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -41,6 +42,11 @@ int main(){
 
     glClearColor(0.529f,0.807f,0.922f,1.0f);
 
+    //backface culling
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+
     unsigned short indices[] = {
         0, 1, 2,   2, 3, 0,        // back
         4, 5, 6,   6, 7, 4,        // front
@@ -53,19 +59,16 @@ int main(){
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0,WIDTH,HEIGHT);
 
-    Chunk chunks[9];
+    int size = 3;
+    int area = size * size;
+
+    //Chunk chunks[size];
+    ChunkManager *chunkManager = NULL; 
     BIDS *bid = NULL;
-    if(generateChunks(chunks,&bid) == 0)silent_failure(&loop,"Chunks failed\n");
+    if(generateChunks(&chunkManager,&bid,size) == 0)silent_failure(&loop,"Chunks failed\n");
 
     Mesh *meshes = NULL;
-   
-    for(int y = 0; y < 9; y++){
-        if(generateMeshes(&chunks[y],bid) == 0)silent_failure(&loop,"Meshes failed\n");   
-    }
-    
-    if(concatenateMeshes(chunks,&meshes,bid,9,indices) == 0) silent_failure(&loop,"Concatenation of meshes failed\n");
-   
-    
+    if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed\n");
 
     int handles[3] = {0,0,0};
 
@@ -85,7 +88,7 @@ int main(){
 
     //camera portion
     Camera camera;
-    vec3s position = {24.0f,16.0f,24.0f};
+    vec3s position = {size * 8.0f,16.0f,size * 8.0f};
     vec3s look = {0.0f,2.0f,0.0f};
     initCamera(&camera,position,look);
 
@@ -109,6 +112,7 @@ int main(){
     //MAIN LOOP
     while(loop){ 
         //printf("loop\n");
+        //loadChunks(chunkManager);
         fps_counter(&fps,&frames,&fps_timer);
         if(fps > 0 && frames == 0){ 
            number_to_string(fps,&fps_string);
@@ -130,14 +134,19 @@ int main(){
                 default: {
                     keys = getKeys();
                     mouse = getMouse(event);
-                    cameraMovement(keys,mouse,&camera,tick.delta);
+                    if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
+                        chunkManager->update = true; 
+                        int test = getCurrentChunk(chunkManager,camera.position);
+                        //printf("%i\n",test);
+                        if( test == 1) if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
+                    }
                 }
             }
         }
     }
     
     destroyBIDS(&bid);
-    for(int z = 0; z < 9; z++){destroyChunks(&chunks[z]);}
+    destroyChunkManager(&chunkManager);
     destroyMeshes(&meshes,1);
     shaders_destroy(handles[1],handles[2],handles[0]);
     destroyTexture(&texture);
