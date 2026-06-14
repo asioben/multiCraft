@@ -86,7 +86,6 @@ int generateChunk(Chunk *chunk, BIDS **types, int seed){
     chunk->types[2] = STONE;
     chunk->blocks = malloc(fullSize * sizeof(Block));
     if(chunk->blocks == NULL) return safe_return("blocks is not allocated\n");
-    //int test = 0;
     chunk->models = NULL;
     chunk->minHeight = 0;
 
@@ -179,12 +178,12 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     }
     if(chunk->models == NULL) chunk->models = malloc(chunk->meshesSize * sizeof(int*));
     if(chunk->models == NULL) return safe_return("Allocate models failed\n");
-    //printf("%i\n",chunk->meshesSize); 
         
     
     //in case the chunk update we need to change that
     //PLEASE dont forget that 
     //pLEAAAse
+    //my dumb aahh forgot...
     if((chunk->models) == NULL) return safe_return("Models failed\n");
     for(int i = 0; i < chunk->meshesSize; i++){
         chunk->models[i] = malloc(chunk->meshSize[i] * sizeof(int));
@@ -192,12 +191,10 @@ int generateMeshes(Chunk *chunk, BIDS *types){
         if(chunk->models[i] == NULL) return safe_return("Models failed AGAIN !\n");
             int counter = 0;
             for(int k = 0; k <= blocks_size; k++){
-                //if(i == 0 && k == 0)printf("%i\n",blocks_size);
                if(chunk->blocks[blocks[k]].type == types->type[i]){
                  chunk->models[i][counter] = blocks[k];
                  counter += 1;
                 }
-                //if(k == blocks_size) printf("%i,%i\n",counter,chunk->meshSize[i]);
              }
     }
     free(blocks);
@@ -227,8 +224,6 @@ int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsig
             for(int k = 0; k < chunk[j]->meshesSize; k++){
                 if(chunk[j]->types[k] == types->type[i]){
                     if(chunk[j]->meshSize[k] > 0) for(int m = 0; m < chunk[j]->meshSize[k]; m++){
-                        //if(m == 0 && k == 1 && j == 0)printf("e%i\n",types->sizes[1]);
-                        //printf("%i,%i,%i\n",m, chunk[j]->models[k][m],j);
                         glm_mat4_copy(chunk[j]->blocks[chunk[j]->models[k][m]].model,(*meshes)[i].model[counter]);
                         counter += 1;
                     }

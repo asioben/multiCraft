@@ -59,7 +59,7 @@ int main(){
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0,WIDTH,HEIGHT);
 
-    int size = 3;
+    int size = 19;
     int area = size * size;
 
     //Chunk chunks[size];
