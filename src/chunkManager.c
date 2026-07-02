@@ -10,7 +10,6 @@ int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
         if((*chunk_)->chunks == NULL) return safe_return("Chunks allocation failed");
         (*chunk_)->loadChunks = NULL;
         (*chunk_)->update = true;
-        (*chunk_)->loadChunks = NULL;
         (*chunk_)->load_size = 25;
         (*chunk_)->currentChunk = 0;
     }
@@ -19,9 +18,10 @@ int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
         float z = (floor(i/size)*CHUNK_DEPTH);
         vec3s start = {x,0,z}; 
         (*chunk_)->chunks[i].start = start; 
-        if(generateChunk(&(*chunk_)->chunks[i],types,(3000000)) == 0) return safe_return("Generation of the chunk failed\n");
+        //printf("%i\n",i);
+        if(generateChunk(&(*chunk_)->chunks[i],(3000000)) == 0) return safe_return("Generation of the chunk failed\n");
     }
-    vec3s position = {size * 8.0f,16.0f,size * 8.0f};
+    vec3s position = { size * 8.0f,16.0f, size *8.0f};
     getCurrentChunk(*chunk_,position);
 
     return 1;
@@ -45,82 +45,96 @@ int getCurrentChunk(ChunkManager *chunk_, vec3s position){
             chunk_->chunks[i].current = true;
             chunk_->currentChunk = i;
             if(previous == chunk_->currentChunk) return 0;
+            chunk_->update = true;
             return 1;
         }
     }
     return 0;
 }
 
+static int check_chunks_limit(vec3 chunk, float *frontier){
+    if(chunk[0] < frontier[0] || chunk[2] < frontier[0]){
+        return -1;
+    }
+
+    if(chunk[0] > frontier[1] || chunk[2] > frontier[1]){
+        printf("%f,%f,%f",chunk[0],chunk[1],frontier[1]);
+        return 1;
+    }
+    return 0;
+}
+
+static void update_frontier(vec3 chunk, float *frontier, float x, float z, bool *trigger){
+    if(chunk[0] == *frontier){
+        *frontier = x;
+    }else if(chunk[1] == *frontier){
+        *frontier = z;
+    }
+    *trigger = true;
+}
+
 int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short *indices){
     if(chunk_->update == true){
-        chunk_->update == false;
+        chunk_->update = false;
         if(chunk_->loadChunks == NULL) chunk_->loadChunks = malloc(chunk_->load_size * sizeof(Chunk *));
         if(chunk_->loadChunks == NULL) return safe_return("Allocation of loading chunks failed");
 
         chunk_->load_size = 25;
    
-           vec3s central_ = chunk_->chunks[chunk_->currentChunk].start;
-           vec3 central = {central_.x,0,central_.z};
-           vec3 square[chunk_->load_size];
-           int size = (int)sqrt(chunk_->load_size);
-           vec3 start = {central[0] - (floor(size/2)*CHUNK_WIDTH), 0, central[2] - (floor(size/2)*CHUNK_DEPTH)};
+        vec3s central_ = chunk_->chunks[chunk_->currentChunk].start;
+        vec3 central = {central_.x,0,central_.z};
+        vec3 square[chunk_->load_size];
+        int size = (int)sqrt(chunk_->load_size);
+        vec3 start = {central[0] - (floor(size/2)*CHUNK_WIDTH), 0, central[2] - (floor(size/2)*CHUNK_DEPTH)};
 
-           /***
-            * bool triggerWarining = false;
-            * int chunk_dim = (int)sqrt(chunk_->chunks_size) - 1;
-            * float final_position[2] = {0,chunk_dim * CHUNK_WIDTH};
-            * FOR FUTURE COMMIT
-           ***/
+        bool triggerWarning[2] = {false,false};
 
-           for(int b = 0; b < chunk_->load_size; b++){
-            float x = b % size;
-            float z = floor(b / size);
-            square[b][0] = start[0] + (x * CHUNK_WIDTH);
-            square[b][1] = 0.0f;
-            square[b][2] = start[2] + (z * CHUNK_DEPTH);
-            //////SAME THING HERE (FUTURE COMMIT)
-            /*if(square[b][0] <= final_position[0] || square[b][0] >= final_position[1] || square[b][2] <= final_position[0] || square[b][2] >= final_position[1]){
-                for(int h = 0; h < chunk_->load_size; h++){
-                    float x_ = h % size;
-                    float z_ = floor(h / size);
-                    vec3s start_ = {x_,0,z_};
-                    if(generateChunk(&(chunk_)->chunks[i],types,(3000000)) == 0) return safe_return("Generation of the chunk failed again\n");
-                }
-            }*/
-           }
+        int chunk_dim = (int)sqrt(chunk_->chunks_size) - 1;
+        float frontier[2] = {0,chunk_dim * CHUNK_WIDTH};
 
-           int load_elements[chunk_->load_size];
-           int counter = 0;
-           for(int m = 0; m < chunk_->chunks_size; m++){
-            for(int n = 0; n < chunk_->load_size; n++){
-                vec3 check;
-                glm_vec3_copy(chunk_->chunks[m].start.raw,check);
-                if(glm_vec3_eqv(check,square[n])){
-                    load_elements[counter] = m;
-                    n = chunk_->load_size * 2; 
-                    counter += 1;
-                }
-            }
-           }
+        for(int b = 0; b < chunk_->load_size; b++){
+         float x = b % size;
+         float z = floor(b / size);
+         square[b][0] = start[0] + (x * CHUNK_WIDTH);
+         square[b][1] = 0.0f;
+         square[b][2] = start[2] + (z * CHUNK_DEPTH);
+         
+         int direction = check_chunks_limit(square[b],frontier);
+         
 
-           chunk_->load_size = counter;
+        }
 
-           for(int d = 0; d < chunk_->load_size; d++){
-            chunk_->loadChunks[d] = &chunk_->chunks[load_elements[d]];
-           }
-           initBIDS(types);
-           //DO NOT REMOVE printf YET
-           //MY CODE ONLY WORKS WHEN I CALL IT
-           printf("");
+        int load_elements[chunk_->load_size];
+        int counter = 0;
+        for(int m = 0; m < chunk_->chunks_size; m++){
         
+         for(int n = 0; n < chunk_->load_size; n++){
+             vec3 check;
+            
+             glm_vec3_copy(chunk_->chunks[m].start.raw,check);
+             if(glm_vec3_eqv(check,square[n])){
+                 load_elements[counter] = m;
+                 
+                 counter ++;
+                 break;
+             }
+         }
+        }
+
+        chunk_->load_size = counter;
+          
+
+        for(int d = 0; d < chunk_->load_size; d++){
+         chunk_->loadChunks[d] = &chunk_->chunks[load_elements[d]];
+        }
+        initBIDS(types);
         
         for(int y = 0; y < chunk_->load_size; y++){
-           if(generateMeshes(chunk_->loadChunks[y],*types) == 0)safe_return("Meshes failed\n");  
+          if(generateMeshes(chunk_->loadChunks[y],*types) == 0)safe_return("Meshes failed\n");
+        
         }
     
         if(concatenateMeshes(chunk_->loadChunks,meshes,*types,chunk_->load_size,indices) == 0) safe_return("Concatenation of meshes failed\n");
-    
-
     }
 
     return 1;
@@ -133,3 +147,13 @@ void destroyChunkManager(ChunkManager **chunk_){
     }
     free(*chunk_);
 }
+
+/***
+ * IMPLEMENTATION
+ * I'll implement a new (not so)complex 
+ * generation reallocation system
+ * that would seamlessly reallocate
+ * and generate new chunks
+ * up to 225 chunks
+ * 
+ *  ***/

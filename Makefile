@@ -10,9 +10,13 @@ libs:
 
 main: $(OBJ)
 	gcc -o main $^ $(LIBRARIES) 
+	rm -f $(OBJ)
+
 
 %.o: %.c
 	gcc -o $@ -c $< $(INCLUDES)
 
 clean:
-	rm -f main $(OBJ)
+	rm -f main 
+
+.PHONY:	all clean

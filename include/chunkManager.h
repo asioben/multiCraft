@@ -3,6 +3,8 @@
 
 #include "chunk.h"
 
+#define CHUNKS_LIMIT 4096
+
 typedef struct{
     //different kind of chunks
     Chunk **loadChunks;

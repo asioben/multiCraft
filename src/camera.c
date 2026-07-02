@@ -44,7 +44,7 @@ void matrix_init(mat4s View, unsigned int program, unsigned int *matrix, int *co
 
 int cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaTime){
     int to_return = 0;
-    float sensibility = 0.01f;
+    float sensibility = 0.005f;
     float time = ((float)deltaTime)/1000.0f;
     float speed = 2.0f;
     //printf("(%i/%i)\n",mouse.motion.x,mouse.motion.y);

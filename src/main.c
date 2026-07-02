@@ -59,8 +59,8 @@ int main(){
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0,WIDTH,HEIGHT);
 
-    int size = 19;
-    int area = size * size;
+    int size = (int)sqrt(CHUNKS_LIMIT);
+    int area = CHUNKS_LIMIT;
 
     //Chunk chunks[size];
     ChunkManager *chunkManager = NULL; 
@@ -88,7 +88,7 @@ int main(){
 
     //camera portion
     Camera camera;
-    vec3s position = {size * 8.0f,16.0f,size * 8.0f};
+    vec3s position = { size * 8.0f,16.0f,size * 8.0f};
     vec3s look = {0.0f,2.0f,0.0f};
     initCamera(&camera,position,look);
 
@@ -135,10 +135,8 @@ int main(){
                     keys = getKeys();
                     mouse = getMouse(event);
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
-                        chunkManager->update = true; 
-                        int test = getCurrentChunk(chunkManager,camera.position);
-                        //printf("%i\n",test);
-                        if( test == 1) if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
+                        getCurrentChunk(chunkManager,camera.position);
+                        if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
                     }
                 }
             }

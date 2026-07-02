@@ -44,7 +44,7 @@ int insideBIDS(BIDS *types, BlockID type, int *element);
 
 int updateBIDS(BIDS *types, BlockID *types_, int size, int *meshSize);
 
-int generateChunk(Chunk *chunk, BIDS **types, int seed);
+int generateChunk(Chunk *chunk, int seed);
 
 int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types);
 
