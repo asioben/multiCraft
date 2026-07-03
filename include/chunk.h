@@ -5,6 +5,9 @@
 #include "graphic.h"
 #include "perlin.h"
 
+//dirty include :(
+#include "../extra_utilities/arena.h"
+
 #define CHUNK_WIDTH 16
 #define CHUNK_HEIGHT 16
 #define CHUNK_DEPTH 16
@@ -50,11 +53,11 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types);
 
 int generateMeshes(Chunk *chunk, BIDS *types);
 
-int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
+int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
 
 void destroyChunks(Chunk *chunks);
 
-void destroyMeshes(Mesh **meshes, int size);
+void destroyMeshes(Mesh **meshes, Arena *arena, int size);
 
 void destroyBIDS(BIDS **types);
 

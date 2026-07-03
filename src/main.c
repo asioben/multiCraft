@@ -67,8 +67,10 @@ int main(){
     BIDS *bid = NULL;
     if(generateChunks(&chunkManager,&bid,size) == 0)silent_failure(&loop,"Chunks failed\n");
 
+    Arena arena;
+    arena_init(&arena,4194304);
     Mesh *meshes = NULL;
-    if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed\n");
+    if(loadChunks(chunkManager,&arena,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed\n");
 
     int handles[3] = {0,0,0};
 
@@ -136,7 +138,7 @@ int main(){
                     mouse = getMouse(event);
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
                         getCurrentChunk(chunkManager,camera.position);
-                        if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
+                        if(loadChunks(chunkManager,&arena,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
                     }
                 }
             }
@@ -145,9 +147,10 @@ int main(){
     
     destroyBIDS(&bid);
     destroyChunkManager(&chunkManager);
-    destroyMeshes(&meshes,1);
+    destroyMeshes(&meshes,&arena,1);
     shaders_destroy(handles[1],handles[2],handles[0]);
     destroyTexture(&texture);
+    arena_free(&arena);
     SDL_GL_DestroyContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();

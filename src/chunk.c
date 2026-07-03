@@ -206,12 +206,14 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     return 1;
 }
 
-int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices){
+int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices){
     if(*meshes != NULL){
-       destroyMeshes(meshes,1);
+       destroyMeshes(meshes,arena,types->counter + 1);
        printf("free\n");
+       *meshes = NULL;
     }
-    *meshes = malloc((types->counter + 1) * sizeof(Mesh));
+    *meshes = (Mesh *)arena_alloc(arena,(types->counter + 1) * sizeof(Mesh));
+    printf("alloc\n");
     if(*meshes == NULL) return safe_return("Allocation of meshes failed");
 
     for(int i = 0; i <= types->counter; i++){
@@ -223,7 +225,7 @@ int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsig
         vertex_init();
         int counter = 0;
         (*meshes)[i].size = types->sizes[i];
-        (*meshes)[i].model = malloc(types->sizes[i] * sizeof(mat4));
+        (*meshes)[i].model = (mat4 *) arena_alloc(arena,types->sizes[i] * sizeof(mat4));
         if((*meshes)[i].model == NULL) return safe_return("Model failed");
         for(int j = 0; j < size; j++){
             for(int k = 0; k < chunk[j]->meshesSize; k++){
@@ -256,14 +258,15 @@ void destroyChunks(Chunk *chunks){
         if(chunks->models != NULL)free(chunks->models);
 }
 
-void destroyMeshes(Mesh **meshes, int size){
+void destroyMeshes(Mesh **meshes, Arena *arena, int size){
     for(int i = 0; i < size; i++){
         vbo_ebo_destroy(&(*meshes)[i].VBO,&(*meshes)[i].EBO);
         vbo_ebo_destroy(&(*meshes)[i].instance,NULL);
         vao_destroy(&(*meshes)[i].VAO);
-        free((*meshes)[i].model);
+        //free((*meshes)[i].model);
     }
-    free((*meshes));
+    arena_reset(arena);
+    //free((*meshes));
 }
 
 void destroyBIDS(BIDS **types){

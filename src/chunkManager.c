@@ -64,16 +64,16 @@ static int check_chunks_limit(vec3 chunk, float *frontier){
     return 0;
 }
 
-static void update_frontier(vec3 chunk, float *frontier, float x, float z, bool *trigger){
+/*static void update_frontier(vec3 chunk, float *frontier, float x, float z, bool *trigger){
     if(chunk[0] == *frontier){
         *frontier = x;
     }else if(chunk[1] == *frontier){
         *frontier = z;
     }
     *trigger = true;
-}
+}*/
 
-int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short *indices){
+int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, unsigned short *indices){
     if(chunk_->update == true){
         chunk_->update = false;
         if(chunk_->loadChunks == NULL) chunk_->loadChunks = malloc(chunk_->load_size * sizeof(Chunk *));
@@ -127,14 +127,15 @@ int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short
         for(int d = 0; d < chunk_->load_size; d++){
          chunk_->loadChunks[d] = &chunk_->chunks[load_elements[d]];
         }
+        //printf("bids\n");
         initBIDS(types);
         
         for(int y = 0; y < chunk_->load_size; y++){
           if(generateMeshes(chunk_->loadChunks[y],*types) == 0)safe_return("Meshes failed\n");
         
         }
-    
-        if(concatenateMeshes(chunk_->loadChunks,meshes,*types,chunk_->load_size,indices) == 0) safe_return("Concatenation of meshes failed\n");
+        
+        if(concatenateMeshes(arena,chunk_->loadChunks,meshes,*types,chunk_->load_size,indices) == 0) safe_return("Concatenation of meshes failed\n");
     }
 
     return 1;
