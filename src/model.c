@@ -7,58 +7,67 @@ void generateTree(vec3s *positions, BlockID *blocks){
     //TRUNK PART
     int counter = 0;
     for(int i = 0; i < 7; i++){
-        positions[counter + i].x = 0.0f;
-        positions[counter + i].y = i;
-        positions[counter + i].z = 0.0f;
-        blocks[counter + i] = OAK;
+        int element = counter + i;
+        positions[element].x = 0.0f;
+        positions[element].y = i;
+        positions[element].z = 0.0f;
+        blocks[element] = OAK;
+        printf("(%f,%f,%f)\n",positions[element].x,positions[element].y,positions[element].z);
     }
     counter = 7;
 
     //LEAVE PART
 
     //BASE
-    for(int j = 0; j < 15; j++){
+    for(int j = 0; j < 24; j++){
         int element = j + counter;
         int t = j;
-        //if(j >= 12) t += 1;
-        positions[element].x = t % 4;
-        positions[element].y = 4;
-        positions[element].z = floorf(t / 4);
+        if(j >= 12) t += 1;
+        positions[element].x = (t % 5) - 2.0f;
+        positions[element].y = 4.0f;
+        positions[element].z = floorf(t / 5) - 2.0f;
         blocks[element] = LEAVES;
 
     }
-    counter = 22;
+    counter = 31;
 
     for(int j = 0; j < 8; j++){
         int element = j + counter;
         int t = j;
-        //if(j >= 4) j += 1;
-        positions[element].x = t % 3;
-        positions[element].y = 5;
-        positions[element].z = floorf(t / 3);
+        if(j >= 4) t += 1;
+        positions[element].x = (t % 3) - 1.0f;
+        positions[element].y = 5.0f;
+        positions[element].z = floorf(t / 3) - 1.0f;
         blocks[element] = LEAVES;
     }
-    counter = 30;
+    counter = 39;
 
     for(int j = 0; j < 5; j++){
         
         int element = j + counter;
-        positions[element].y = 6;
+        positions[element].y = 6.0f;
         if(j == 0){
-            positions[element].x = 0;
-            positions[element].z = -1;
+            positions[element].x = 0.0f;
+            positions[element].z = -1.0f;
             blocks[element] = LEAVES;
-        }else if(j > 0 && j > 4){
-            positions[element].x = (j - 1) - 1;
-            positions[element].z = 0;
+        }else if(j > 0 && j < 4){
+            positions[element].x = (j - 1.0f) - 1.0f;
+            positions[element].z = 0.0f;
             blocks[element] = LEAVES;
         }else{
-            positions[element].x = 0;
-            positions[element].z = 1;
+            positions[element].x = 0.0f;
+            positions[element].z = 1.0f;
             blocks[element] = LEAVES;
         }
         
     }
+
+    counter = 44;
+
+    positions[counter].x = 0.0f;
+    positions[counter].y = 7.0f;
+    positions[counter].z = 0.0f;
+    blocks[counter] = LEAVES;
 }
 
 void checkTreeValidPosition(vec3s *position, vec3s start){

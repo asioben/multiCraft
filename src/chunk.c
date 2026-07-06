@@ -95,30 +95,33 @@ int generateChunk(Chunk *chunk, int seed){
     chunk->models = NULL;
     chunk->minHeight = 0;
 
-    /*int number_of_tree = 1;
+    int number_of_tree = 1;
     int tree_created = 0;
-    vec3s tree_positions[35];
-    BlockID tree_blocks[35];
-    int tree_counter = 7;
+    vec3s tree_positions[45];
+    BlockID tree_blocks[45];
+    int tree_counter = 0;
 
     //there is a reason behind this if statement
     if(tree_created < number_of_tree){
+        printf("///////////////\n");
                     //printf("we were here\n");
-                    vec3 translation = {random_(0,10),17,random_(0,10)};
+                    vec3 translation = {random_(0,10),13,random_(0,10)};
+                    printf("%f,%f,%f\n",translation[0],translation[1],translation[2]);
                     tree_created += 1;
                     generateTree(tree_positions,tree_blocks);
-                    checkTreeValidPosition(&tree_positions[0],chunk->start);
-                    for(int s = 0; s < 35; s++){
+                    //checkTreeValidPosition(&tree_positions[0],chunk->start);
+                    for(int s = 0; s < 45; s++){
                         vec3 tree_position_ = {tree_positions[s].x,tree_positions[s].y,tree_positions[s].z};
                        
                         glm_vec3_add(tree_position_,translation,tree_position_);
+                        printf("%f,%f,%f, type:%d\n",tree_positions[s].x,tree_positions[s].y,tree_positions[s].z,tree_blocks[s]);
                         tree_positions[s].x = tree_position_[0];
                         tree_positions[s].y = tree_position_[1];
                         tree_positions[s].z = tree_position_[2];
-                         printf("%f,%f,%f\n",tree_positions[s].x,tree_positions[s].y,tree_positions[s].z);
+                        
                     }
                 }
-*/
+
     for(int i = 0; i < CHUNK_WIDTH; i++){
         for(int j = 0; j < CHUNK_DEPTH; j++){
             for(int k = 0; k < CHUNK_HEIGHT; k++){
@@ -141,13 +144,22 @@ int generateChunk(Chunk *chunk, int seed){
                 else if(k <= (int)(height / 2)){
                     chunk->blocks[counter].type = STONE; 
                     chunk->meshSize[2] += 1;
-                }/*if( tree_positions[tree_counter].x == (float)i && tree_positions[tree_counter].z == (float)j && tree_positions[tree_counter].y == (float)k){
-                    chunk->blocks[counter].type = tree_blocks[tree_counter];
-                    if(tree_blocks[tree_counter] == OAK) chunk->meshSize[3] += 1;
-                    else if(tree_blocks[tree_counter] == LEAVES) {chunk->meshSize[4] += 1;}
-                    tree_counter ++;
-                    printf("%d,%d,%d\n",i,j,k);
-                }*/
+                }for(int u = 0; u < 45; u++){
+                    if( tree_positions[u].x == (float)i && tree_positions[u].z == (float)j && tree_positions[u].y == (float)k){
+                    chunk->blocks[counter].type = tree_blocks[u];
+                    //printf("type: %d\n",tree_blocks[u]);
+                    if(tree_blocks[u] == OAK){
+                         chunk->meshSize[3] += 1;
+                         //printf("oak tree here\n");
+                        }
+                    else if(tree_blocks[u] == LEAVES) {
+                        chunk->meshSize[4] += 1;
+                        //printf("leaves here\n");
+                    }
+                    //printf("%d,%d,%d\n",i,j,k);
+                }
+                }
+                
                 if(chunk->minHeight == 0 || height < chunk->minHeight) chunk->minHeight = height;
                 chunk->blocks[counter].height = k;
                 glm_mat4_identity(chunk->blocks[counter].model);
@@ -207,7 +219,7 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     int before_counter = types->counter;
     if(before_counter < 0) before_counter = 0;
     int before_sizes[BLOCKS_LIMIT];
-    for(int v = 0; v < 3; v++){
+    for(int v = 0; v < BLOCKS_LIMIT; v++){
          before_sizes[v] = types->sizes[v];
          //printf("these two: %d, %d\n",types->sizes[v],before_sizes[v]);
     }
@@ -278,7 +290,6 @@ int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, i
         vbo_init(&(*meshes)[i].VBO,(*meshes)[i].vertices,sizeof((*meshes)[i].vertices));
         ebo_init(&(*meshes)[i].EBO,(*meshes)[i].indices,sizeof((*meshes)[i].indices));
         vertex_init();
-        
         int counter = 0;
         (*meshes)[i].size = types->sizes[i];
         (*meshes)[i].model = (mat4 *) arena_alloc(arena,types->sizes[i] * sizeof(mat4));

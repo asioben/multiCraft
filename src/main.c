@@ -129,7 +129,7 @@ int main(){
         deltaTime(&tick);
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,handles[0],&matrix,&counter);
-        render(meshes,3,handles[0],texture);
+        render(meshes,BLOCKS_LIMIT,handles[0],texture);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
         while(SDL_PollEvent(&event) == 1){
