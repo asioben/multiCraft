@@ -8,6 +8,9 @@
 //dirty include :(
 #include "../extra_utilities/arena.h"
 
+//other includes
+#include "assert.h"
+
 #define CHUNK_WIDTH 16
 #define CHUNK_HEIGHT 16
 #define CHUNK_DEPTH 16

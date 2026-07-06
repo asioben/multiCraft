@@ -44,7 +44,7 @@ void generateCube(float *vertices, BlockID block){
 
     for(int i = 0; i < 6; i++) texCoords[i] = generateSprite(spritesID[i],sheet,sprite); 
     
-    float vertice_[] = {
+    float vertice_[120] = {
         0.0f, 0.0f, 0.0f,texCoords[0].x, texCoords[0].y + texCoords[0].h,
         0.0f,  1.0f, 0.0f,texCoords[0].x, texCoords[0].y,
          1.0f,  1.0f, 0.0f,texCoords[0].x + texCoords[0].w, texCoords[0].y,

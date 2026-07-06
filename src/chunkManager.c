@@ -8,10 +8,11 @@ int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
         (*chunk_)->chunks_size = size * size;
         (*chunk_)->chunks = malloc((*chunk_)->chunks_size * sizeof(Chunk));
         if((*chunk_)->chunks == NULL) return safe_return("Chunks allocation failed");
-        (*chunk_)->loadChunks = NULL;
         (*chunk_)->update = true;
         (*chunk_)->load_size = 25;
         (*chunk_)->currentChunk = 0;
+        (*chunk_)->loadChunks = malloc((*chunk_)->load_size * sizeof(Chunk));
+        if((*chunk_)->loadChunks == NULL) return safe_return("'Load chunks' allocation failed");
     }
     for(int i = 0; i < (*chunk_)->chunks_size; i++){
         float x = (i%size)*CHUNK_WIDTH;
@@ -21,7 +22,7 @@ int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
         //printf("%i\n",i);
         if(generateChunk(&(*chunk_)->chunks[i],(3000000)) == 0) return safe_return("Generation of the chunk failed\n");
     }
-    vec3s position = { size * 8.0f,16.0f, size *8.0f};
+    vec3s position = { size * 4.0f,16.0f, size * 4.0f};
     getCurrentChunk(*chunk_,position);
 
     return 1;
@@ -46,23 +47,24 @@ int getCurrentChunk(ChunkManager *chunk_, vec3s position){
             chunk_->currentChunk = i;
             if(previous == chunk_->currentChunk) return 0;
             chunk_->update = true;
+            //printf("%d\n",i);
             return 1;
         }
     }
     return 0;
 }
 
-static int check_chunks_limit(vec3 chunk, float *frontier){
+/*static int check_chunks_limit(vec3 chunk, float *frontier){
     if(chunk[0] < frontier[0] || chunk[2] < frontier[0]){
         return -1;
     }
 
     if(chunk[0] > frontier[1] || chunk[2] > frontier[1]){
-        printf("%f,%f,%f",chunk[0],chunk[1],frontier[1]);
+        //printf("%f,%f,%f",chunk[0],chunk[1],frontier[1]);
         return 1;
     }
     return 0;
-}
+}*/
 
 /*static void update_frontier(vec3 chunk, float *frontier, float x, float z, bool *trigger){
     if(chunk[0] == *frontier){
@@ -76,8 +78,8 @@ static int check_chunks_limit(vec3 chunk, float *frontier){
 int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, unsigned short *indices){
     if(chunk_->update == true){
         chunk_->update = false;
-        if(chunk_->loadChunks == NULL) chunk_->loadChunks = malloc(chunk_->load_size * sizeof(Chunk *));
-        if(chunk_->loadChunks == NULL) return safe_return("Allocation of loading chunks failed");
+        //if(chunk_->loadChunks == NULL) chunk_->loadChunks = malloc(chunk_->load_size * sizeof(Chunk *));
+        //if(chunk_->loadChunks == NULL) return safe_return("Allocation of loading chunks failed");
 
         chunk_->load_size = 25;
    
@@ -87,10 +89,10 @@ int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, 
         int size = (int)sqrt(chunk_->load_size);
         vec3 start = {central[0] - (floor(size/2)*CHUNK_WIDTH), 0, central[2] - (floor(size/2)*CHUNK_DEPTH)};
 
-        bool triggerWarning[2] = {false,false};
+        //bool triggerWarning[2] = {false,false};
 
-        int chunk_dim = (int)sqrt(chunk_->chunks_size) - 1;
-        float frontier[2] = {0,chunk_dim * CHUNK_WIDTH};
+        //int chunk_dim = (int)sqrt(chunk_->chunks_size) - 1;
+        //float frontier[2] = {0,chunk_dim * CHUNK_WIDTH};
 
         for(int b = 0; b < chunk_->load_size; b++){
          float x = b % size;
@@ -99,7 +101,7 @@ int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, 
          square[b][1] = 0.0f;
          square[b][2] = start[2] + (z * CHUNK_DEPTH);
          
-         int direction = check_chunks_limit(square[b],frontier);
+         //int direction = check_chunks_limit(square[b],frontier);
          
 
         }
@@ -136,7 +138,10 @@ int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, 
         }
         
         if(concatenateMeshes(arena,chunk_->loadChunks,meshes,*types,chunk_->load_size,indices) == 0) safe_return("Concatenation of meshes failed\n");
+
     }
+
+    
 
     return 1;
 }

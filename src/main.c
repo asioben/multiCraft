@@ -62,13 +62,15 @@ int main(){
     int size = (int)sqrt(CHUNKS_LIMIT);
     int area = CHUNKS_LIMIT;
 
+    //int test_number = 0;
+
     //Chunk chunks[size];
     ChunkManager *chunkManager = NULL; 
     BIDS *bid = NULL;
     if(generateChunks(&chunkManager,&bid,size) == 0)silent_failure(&loop,"Chunks failed\n");
 
     Arena arena;
-    arena_init(&arena,4194304);
+    arena_init(&arena,16000000);
     Mesh *meshes = NULL;
     if(loadChunks(chunkManager,&arena,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed\n");
 
@@ -90,7 +92,7 @@ int main(){
 
     //camera portion
     Camera camera;
-    vec3s position = { size * 8.0f,16.0f,size * 8.0f};
+    vec3s position = { size * 4.0f,16.0f,size * 4.0f};
     vec3s look = {0.0f,2.0f,0.0f};
     initCamera(&camera,position,look);
 
@@ -137,7 +139,10 @@ int main(){
                     keys = getKeys();
                     mouse = getMouse(event);
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
-                        getCurrentChunk(chunkManager,camera.position);
+                        if(getCurrentChunk(chunkManager,camera.position)){
+                            //test_number += 1;
+                            //printf("test number: %d\n",test_number);
+                            };
                         if(loadChunks(chunkManager,&arena,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
                     }
                 }

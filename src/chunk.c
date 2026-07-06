@@ -3,6 +3,7 @@
 int initBIDS(BIDS **types){
     if(*types != NULL){
          destroyBIDS(types); 
+         //printf("here\n");
          (*types) = NULL;
     }
     if(*types == NULL){
@@ -134,6 +135,7 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
     if(blocks == NULL) return NULL;
     int block_counter = -1;
     int meshSize = 1;
+    //printf("test:%d\n",types->sizes[0]);
     //printf("héhé,%i\n",chunk->size);
     for(int i = 0; i < chunk->size; i++){
         //printf("0\n");
@@ -151,7 +153,11 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
            }
            blocks[block_counter] = i;
            updateBIDS(types,&chunk->blocks[i].type,1,&meshSize);
+           
         }
+        //printf("%d:\n",block_counter);
+        //printf("%d,%d\n",types->sizes[0],types->sizes[1]);
+        //printf("%d:\n",meshSize);
     }
 
     *blocks_size = block_counter;
@@ -163,8 +169,11 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     int blocks_size = -1;
     int before_counter = types->counter;
     if(before_counter < 0) before_counter = 0;
-    int before_sizes[types->counter + 1];
-    for(int v = 0; v <= types->counter; v++) before_sizes[v] = types->sizes[v];
+    int before_sizes[3];
+    for(int v = 0; v < 3; v++){
+         before_sizes[v] = types->sizes[v];
+         //printf("these two: %d, %d\n",types->sizes[v],before_sizes[v]);
+    }
     int *blocks = generateVisibleBlocks(chunk,&blocks_size,types);
     if(chunk->models != NULL) return 1;
     for(int w = 0; w < chunk->meshesSize; w++){
@@ -174,12 +183,15 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     chunk->meshesSize = 0;
     if(before_counter < types->counter) chunk->meshesSize += (types->counter - before_counter);
     for(int x = 0; x <= types->counter; x++){
+       
         if((types->sizes[x] - before_sizes[x]) > 0){
             chunk->meshesSize += 1;
             if(before_counter < x) chunk->meshSize[x] += types->sizes[x];
             else chunk->meshSize[x] += types->sizes[x] - before_sizes[x];
         }
+        //printf("::%d\n",chunk->meshSize[x]);
     }
+    
     if(chunk->models == NULL) chunk->models = malloc(chunk->meshesSize * sizeof(int*));
     if(chunk->models == NULL) return safe_return("Allocate models failed\n");
         
@@ -208,21 +220,25 @@ int generateMeshes(Chunk *chunk, BIDS *types){
 
 int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices){
     if(*meshes != NULL){
+        //it depends on the number of meshes it had 
        destroyMeshes(meshes,arena,types->counter + 1);
-       printf("free\n");
+       //printf("free\n");
        *meshes = NULL;
     }
     *meshes = (Mesh *)arena_alloc(arena,(types->counter + 1) * sizeof(Mesh));
-    printf("alloc\n");
+    //printf("alloc\n");
     if(*meshes == NULL) return safe_return("Allocation of meshes failed");
-
+    //printf("%d\n",types->counter);
+    assert(types->counter == 1);
     for(int i = 0; i <= types->counter; i++){
+        
         for (int j = 0; j < 36; j++) (*meshes)[i].indices[j] = indices[j];
         generateCube((*meshes)[i].vertices,types->type[i]);
         vao_init(&(*meshes)[i].VAO);
         vbo_init(&(*meshes)[i].VBO,(*meshes)[i].vertices,sizeof((*meshes)[i].vertices));
         ebo_init(&(*meshes)[i].EBO,(*meshes)[i].indices,sizeof((*meshes)[i].indices));
         vertex_init();
+        
         int counter = 0;
         (*meshes)[i].size = types->sizes[i];
         (*meshes)[i].model = (mat4 *) arena_alloc(arena,types->sizes[i] * sizeof(mat4));
@@ -232,8 +248,9 @@ int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, i
                 //printf("here\n");
                 if(chunk[j]->types[k] == types->type[i]){
                     //printf("0\n");
+                    //printf("meshesSize:%d\n",chunk[j]->meshSize[k]);
                     if(chunk[j]->meshSize[k] > 0) for(int m = 0; m < chunk[j]->meshSize[k]; m++){
-                        //printf("%d\n",types->counter);
+                        //printf("%d\n",counter);
                         glm_mat4_copy(chunk[j]->blocks[chunk[j]->models[k][m]].model,(*meshes)[i].model[counter]);
                         //printf("2o\n");
                         counter += 1;
@@ -241,6 +258,9 @@ int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, i
                 }
             }
         }
+        //printf("instances:%d\n",counter);
+        
+        
         instance_init((*meshes)[i].VAO,&(*meshes)[i].instance,(*meshes)[i].model,sizeof(mat4) * types->sizes[i]);
     }
 
