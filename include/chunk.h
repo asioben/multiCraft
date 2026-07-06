@@ -3,7 +3,7 @@
 
 #include "block.h"
 #include "graphic.h"
-#include "perlin.h"
+#include "../extra_utilities/perlin.h"
 
 //dirty include :(
 #include "../extra_utilities/arena.h"
@@ -12,7 +12,7 @@
 #include "assert.h"
 
 #define CHUNK_WIDTH 16
-#define CHUNK_HEIGHT 16
+#define CHUNK_HEIGHT 32
 #define CHUNK_DEPTH 16
 
 typedef struct{

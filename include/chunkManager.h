@@ -5,7 +5,7 @@
 
 #include "../extra_utilities/arena.h"
 
-#define CHUNKS_LIMIT 4096
+#define CHUNKS_LIMIT 64
 
 typedef struct{
     //different kind of chunks

@@ -1,4 +1,4 @@
-#include "../include/perlin.h"
+#include "perlin.h"
 
 #define STB_PERLIN_IMPLEMENTATION
 #include "../third_party/stb_perlin.h"

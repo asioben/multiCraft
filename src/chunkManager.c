@@ -16,7 +16,7 @@ int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
     }
     for(int i = 0; i < (*chunk_)->chunks_size; i++){
         float x = (i%size)*CHUNK_WIDTH;
-        float z = (floor(i/size)*CHUNK_DEPTH);
+        float z = (floorf(i/size)*CHUNK_DEPTH);
         vec3s start = {x,0,z}; 
         (*chunk_)->chunks[i].start = start; 
         //printf("%i\n",i);
@@ -96,7 +96,7 @@ int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, 
 
         for(int b = 0; b < chunk_->load_size; b++){
          float x = b % size;
-         float z = floor(b / size);
+         float z = floorf(b / size);
          square[b][0] = start[0] + (x * CHUNK_WIDTH);
          square[b][1] = 0.0f;
          square[b][2] = start[2] + (z * CHUNK_DEPTH);

@@ -7,6 +7,7 @@ void generateCube(float *vertices, BlockID block){
     int spritesID[6] = {0,0,0,0,0,0};
 
     switch(block){
+        ///GRASS
         case GRASS:{
             spritesID[0] = 3;
             spritesID[1] = 3;
@@ -15,6 +16,8 @@ void generateCube(float *vertices, BlockID block){
             spritesID[4] = 3;
             spritesID[5] = 3;
         }break;
+
+        //DIRT
         case DIRT:{
             spritesID[0] = 2;
             spritesID[1] = 2;
@@ -23,6 +26,8 @@ void generateCube(float *vertices, BlockID block){
             spritesID[4] = 2;
             spritesID[5] = 2;
         }break;
+
+        //STONE
         case STONE:{
             spritesID[0] = 1;
             spritesID[1] = 1;
@@ -31,6 +36,27 @@ void generateCube(float *vertices, BlockID block){
             spritesID[4] = 1;
             spritesID[5] = 1;
         }break;
+
+        //OAK
+        case OAK:{
+            spritesID[0] = 28;
+            spritesID[1] = 28;
+            spritesID[2] = 29;
+            spritesID[3] = 29;
+            spritesID[4] = 28;
+            spritesID[5] = 28;
+        }break;
+
+        //LEAVES
+        case LEAVES:{
+            spritesID[0] = 76;
+            spritesID[1] = 76;
+            spritesID[2] = 76;
+            spritesID[3] = 76;
+            spritesID[4] = 76;
+            spritesID[5] = 76;
+        }break;
+
         default:{
             printf("Default texture");
             spritesID[0] = 3;

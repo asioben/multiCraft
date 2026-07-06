@@ -1,4 +1,5 @@
 #include "../include/chunk.h"
+#include "../include/model.h"
 
 int initBIDS(BIDS **types){
     if(*types != NULL){
@@ -9,11 +10,13 @@ int initBIDS(BIDS **types){
     if(*types == NULL){
         (*types) = malloc(1 * sizeof(BIDS));
         if(*types == NULL) return safe_return("BIDS is not allocated\n");
-        (*types)->capacity = 3;
+        (*types)->capacity = 5;
         (*types)->type = malloc((*types)->capacity * sizeof(BlockID));
         (*types)->type[0] = AIR;
         (*types)->type[1] = AIR;
         (*types)->type[2] = AIR;
+        (*types)->type[3] = AIR;
+        (*types)->type[4] = AIR;
         if((*types)->type == NULL) return safe_return("BIDS type ais not allocated\n");
         (*types)->sizes = calloc((*types)->capacity,sizeof(int));
         if((*types)->sizes == NULL) return safe_return("BIDS sizes is not allocated\n");
@@ -77,7 +80,7 @@ int generateChunk(Chunk *chunk, int seed){
     //printf("test\n");
     int counter = 0;
     int fullSize = CHUNK_DEPTH * CHUNK_HEIGHT * CHUNK_WIDTH;
-    chunk->meshesSize = 3;
+    chunk->meshesSize = 5;
     chunk->meshSize = calloc(chunk->meshesSize,sizeof(GLuint));
     if(chunk->meshSize == NULL) return safe_return("MeshSize is not allocated\n");
     chunk->types = malloc(chunk->meshesSize * sizeof(BlockID));
@@ -85,11 +88,37 @@ int generateChunk(Chunk *chunk, int seed){
     chunk->types[0] = GRASS;
     chunk->types[1] = DIRT;
     chunk->types[2] = STONE;
+    chunk->types[3] = OAK;
+    chunk->types[4] = LEAVES;
     chunk->blocks = malloc(fullSize * sizeof(Block));
     if(chunk->blocks == NULL) return safe_return("blocks is not allocated\n");
     chunk->models = NULL;
     chunk->minHeight = 0;
 
+    /*int number_of_tree = 1;
+    int tree_created = 0;
+    vec3s tree_positions[35];
+    BlockID tree_blocks[35];
+    int tree_counter = 7;
+
+    //there is a reason behind this if statement
+    if(tree_created < number_of_tree){
+                    //printf("we were here\n");
+                    vec3 translation = {random_(0,10),17,random_(0,10)};
+                    tree_created += 1;
+                    generateTree(tree_positions,tree_blocks);
+                    checkTreeValidPosition(&tree_positions[0],chunk->start);
+                    for(int s = 0; s < 35; s++){
+                        vec3 tree_position_ = {tree_positions[s].x,tree_positions[s].y,tree_positions[s].z};
+                       
+                        glm_vec3_add(tree_position_,translation,tree_position_);
+                        tree_positions[s].x = tree_position_[0];
+                        tree_positions[s].y = tree_position_[1];
+                        tree_positions[s].z = tree_position_[2];
+                         printf("%f,%f,%f\n",tree_positions[s].x,tree_positions[s].y,tree_positions[s].z);
+                    }
+                }
+*/
     for(int i = 0; i < CHUNK_WIDTH; i++){
         for(int j = 0; j < CHUNK_DEPTH; j++){
             for(int k = 0; k < CHUNK_HEIGHT; k++){
@@ -98,6 +127,8 @@ int generateChunk(Chunk *chunk, int seed){
                 glm_vec3_add(position,start,position);
                 float noise = fractalPerlin2D(position[0],j,0.01f,10,0.5f,seed);
                 int height = (int)((noise + 1.0f) * 15);
+                
+                //printf("%f,%f,%f\n",tree_positions[0].x,tree_positions[1].y,tree_positions[2].z);
                 if(k == height) {
                     chunk->blocks[counter].type = GRASS;
                     chunk->meshSize[0] += 1;
@@ -110,12 +141,18 @@ int generateChunk(Chunk *chunk, int seed){
                 else if(k <= (int)(height / 2)){
                     chunk->blocks[counter].type = STONE; 
                     chunk->meshSize[2] += 1;
-                }
+                }/*if( tree_positions[tree_counter].x == (float)i && tree_positions[tree_counter].z == (float)j && tree_positions[tree_counter].y == (float)k){
+                    chunk->blocks[counter].type = tree_blocks[tree_counter];
+                    if(tree_blocks[tree_counter] == OAK) chunk->meshSize[3] += 1;
+                    else if(tree_blocks[tree_counter] == LEAVES) {chunk->meshSize[4] += 1;}
+                    tree_counter ++;
+                    printf("%d,%d,%d\n",i,j,k);
+                }*/
                 if(chunk->minHeight == 0 || height < chunk->minHeight) chunk->minHeight = height;
                 chunk->blocks[counter].height = k;
                 glm_mat4_identity(chunk->blocks[counter].model);
                 glm_translate(chunk->blocks[counter].model,position);
-                counter += 1;
+                counter ++;
             }
         }
     }
@@ -200,6 +237,9 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     //PLEASE dont forget that 
     //pLEAAAse
     //my dumb aahh forgot...
+    //UPDATE
+    //I think I remember what I needed to change
+    //it caused me a very BIG issue :( !!!!!
     if((chunk->models) == NULL) return safe_return("Models failed\n");
     for(int i = 0; i < chunk->meshesSize; i++){
         chunk->models[i] = malloc(chunk->meshSize[i] * sizeof(int));
@@ -229,7 +269,7 @@ int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, i
     //printf("alloc\n");
     if(*meshes == NULL) return safe_return("Allocation of meshes failed");
     //printf("%d\n",types->counter);
-    assert(types->counter == 1);
+    //assert(types->counter == 1);
     for(int i = 0; i <= types->counter; i++){
         
         for (int j = 0; j < 36; j++) (*meshes)[i].indices[j] = indices[j];
