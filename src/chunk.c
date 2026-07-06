@@ -169,7 +169,7 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     int blocks_size = -1;
     int before_counter = types->counter;
     if(before_counter < 0) before_counter = 0;
-    int before_sizes[3];
+    int before_sizes[BLOCKS_LIMIT];
     for(int v = 0; v < 3; v++){
          before_sizes[v] = types->sizes[v];
          //printf("these two: %d, %d\n",types->sizes[v],before_sizes[v]);

@@ -3,6 +3,8 @@
 
 #include "texture.h"
 
+#define BLOCKS_LIMIT 3
+
 typedef enum {
     AIR,
     GRASS,
