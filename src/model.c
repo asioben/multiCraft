@@ -12,7 +12,7 @@ void generateTree(vec3s *positions, BlockID *blocks){
         positions[element].y = i;
         positions[element].z = 0.0f;
         blocks[element] = OAK;
-        printf("(%f,%f,%f)\n",positions[element].x,positions[element].y,positions[element].z);
+        //printf("(%f,%f,%f)\n",positions[element].x,positions[element].y,positions[element].z);
     }
     counter = 7;
 
@@ -70,30 +70,30 @@ void generateTree(vec3s *positions, BlockID *blocks){
     blocks[counter] = LEAVES;
 }
 
-void checkTreeValidPosition(vec3s *position, vec3s start){
+void checkTreeValidPosition(vec3s position, vec3s start, vec3 output){
     vec3s frontier[2] = {
         {start.x,start.y,start.z},
         {start.x + chunk_width,start.y,start.z + chunk_depth}
     };
 
     vec3s new_position[2] = {
-        {position->x - 3.0f, position->y, position->z - 3.0f},
-        {position->x + 3.0f, position->y, position->z + 3.0f}
+        {position.x - 3.0f, position.y, position.z - 3.0f},
+        {position.x + 3.0f, position.y, position.z + 3.0f}
     };
 
     for(int i = 0; i < 2; i++){
         for(int j = 0; j < 2; j++){
-            if(new_position[i].x >= frontier[j].x ){
-                position->x -= 1.0f;
+            if(new_position[i].x >= frontier[j].x && j == 1){
+                output[0] -= 2.0f;
             }
-            if(new_position[i].x < frontier[j].x ){
-                position->x += 1.0f;
+            if(new_position[i].x < frontier[j].x && j == 0){
+                output[0] += 2.0f;
             }
-            if(new_position[i].z >= frontier[j].z){
-                position->z -= 1.0f;
+            if(new_position[i].z >= frontier[j].z && j == 1){
+                output[2] -= 2.0f;
             }
-             if(new_position[i].z < frontier[j].z){
-                position->z += 1.0f;
+             if(new_position[i].z < frontier[j].z && j == 0){
+                output[2] += 2.0f;
             }
         }
     }

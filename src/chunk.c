@@ -103,18 +103,20 @@ int generateChunk(Chunk *chunk, int seed){
 
     //there is a reason behind this if statement
     if(tree_created < number_of_tree){
-        printf("///////////////\n");
+        //printf("///////////////\n");
                     //printf("we were here\n");
-                    vec3 translation = {random_(0,10),13,random_(0,10)};
-                    printf("%f,%f,%f\n",translation[0],translation[1],translation[2]);
+                    vec3 translation = {random_(0,10),random_(12,14),random_(0,10)};
+                    //printf("%f,%f,%f\n",translation[0],translation[1],translation[2]);
                     tree_created += 1;
                     generateTree(tree_positions,tree_blocks);
-                    //checkTreeValidPosition(&tree_positions[0],chunk->start);
+                    checkTreeValidPosition(tree_positions[0],chunk->start,translation);
+                     //printf("%f,%f,%f\n",translation[0],translation[1],translation[2]);
+                    //printf()
                     for(int s = 0; s < 45; s++){
                         vec3 tree_position_ = {tree_positions[s].x,tree_positions[s].y,tree_positions[s].z};
                        
                         glm_vec3_add(tree_position_,translation,tree_position_);
-                        printf("%f,%f,%f, type:%d\n",tree_positions[s].x,tree_positions[s].y,tree_positions[s].z,tree_blocks[s]);
+                        //printf("%f,%f,%f, type:%d\n",tree_positions[s].x,tree_positions[s].y,tree_positions[s].z,tree_blocks[s]);
                         tree_positions[s].x = tree_position_[0];
                         tree_positions[s].y = tree_position_[1];
                         tree_positions[s].z = tree_position_[2];

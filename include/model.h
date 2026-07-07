@@ -7,6 +7,6 @@
 
 void generateTree(vec3s *positions, BlockID *blocks);
 
-void checkTreeValidPosition(vec3s *position, vec3s start);
+void checkTreeValidPosition(vec3s position, vec3s start, vec3 output);
 
 #endif
