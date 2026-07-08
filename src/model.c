@@ -84,16 +84,16 @@ void checkTreeValidPosition(vec3s position, vec3s start, vec3 output){
     for(int i = 0; i < 2; i++){
         for(int j = 0; j < 2; j++){
             if(new_position[i].x >= frontier[j].x && j == 1){
-                output[0] -= 2.0f;
+                output[0] -= 3.0f;
             }
             if(new_position[i].x < frontier[j].x && j == 0){
-                output[0] += 2.0f;
+                output[0] += 3.0f;
             }
             if(new_position[i].z >= frontier[j].z && j == 1){
-                output[2] -= 2.0f;
+                output[2] -= 3.0f;
             }
              if(new_position[i].z < frontier[j].z && j == 0){
-                output[2] += 2.0f;
+                output[2] += 3.0f;
             }
         }
     }

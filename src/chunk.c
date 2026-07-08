@@ -1,6 +1,8 @@
 #include "../include/chunk.h"
 #include "../include/model.h"
 
+int fullSize = CHUNK_DEPTH * CHUNK_HEIGHT * CHUNK_WIDTH;
+
 int initBIDS(BIDS **types){
     if(*types != NULL){
          destroyBIDS(types); 
@@ -79,7 +81,6 @@ int generateChunk(Chunk *chunk, int seed){
     //if(chunk != NULL) return NULL;
     //printf("test\n");
     int counter = 0;
-    int fullSize = CHUNK_DEPTH * CHUNK_HEIGHT * CHUNK_WIDTH;
     chunk->meshesSize = 5;
     chunk->meshSize = calloc(chunk->meshesSize,sizeof(GLuint));
     if(chunk->meshSize == NULL) return safe_return("MeshSize is not allocated\n");
@@ -180,6 +181,41 @@ int generateChunk(Chunk *chunk, int seed){
     return 1;
 }
 
+static bool checkOccludedBlock(Block *blocks, int element){
+    int elements[6] = {
+        element + 1,
+        element - 1,
+        element + CHUNK_HEIGHT,
+        element - CHUNK_HEIGHT,
+        element + (CHUNK_DEPTH * CHUNK_HEIGHT),
+        element - (CHUNK_DEPTH * CHUNK_HEIGHT)
+    };
+
+    int occluder = 0;
+
+    int y = element % CHUNK_HEIGHT;
+    int z = (element / CHUNK_HEIGHT) % CHUNK_DEPTH;
+    int x = element / (CHUNK_HEIGHT * CHUNK_DEPTH);
+
+    //printf("x:%d,y:%d,z:%d\n",x,y,z);
+
+    for(int i = 0; i < 6; i++){
+        if((elements[i] >= 0 && elements[i] < fullSize)){
+            if(x == 0 || z == 0 || x == CHUNK_WIDTH - 1 || z == CHUNK_DEPTH - 1) return false;
+            if(blocks[elements[i]].type == AIR){
+                return false;
+            }else{
+               occluder ++;
+            }
+            //if(element >= (8192-512)) printf("%d,%d,%d\n",i,elements[i],occluder);
+        }
+    }
+
+    
+    if(occluder == 6) return true;
+    return false;
+}
+
 int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
     int size = CHUNK_WIDTH * CHUNK_DEPTH ;
     int *blocks =  malloc(size * sizeof(int));
@@ -190,7 +226,9 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
     //printf("héhé,%i\n",chunk->size);
     for(int i = 0; i < chunk->size; i++){
         //printf("0\n");
-        if((chunk->blocks[i].height >= chunk->minHeight) && (chunk->blocks[i].type != AIR)){
+        if((chunk->blocks[i].height >= chunk->minHeight)
+         && (chunk->blocks[i].type != AIR) 
+         && (checkOccludedBlock(chunk->blocks,i) == false)){
             block_counter += 1;
             //printf("1\n");
             if(block_counter >= size){
@@ -285,7 +323,7 @@ int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, i
     //printf("%d\n",types->counter);
     //assert(types->counter == 1);
     for(int i = 0; i <= types->counter; i++){
-        
+        //printf("meshesSize:%d, type:%d\n",types->type[i],types->sizes[i]);
         for (int j = 0; j < 36; j++) (*meshes)[i].indices[j] = indices[j];
         generateCube((*meshes)[i].vertices,types->type[i]);
         vao_init(&(*meshes)[i].VAO);
@@ -301,7 +339,6 @@ int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, i
                 //printf("here\n");
                 if(chunk[j]->types[k] == types->type[i]){
                     //printf("0\n");
-                    //printf("meshesSize:%d\n",chunk[j]->meshSize[k]);
                     if(chunk[j]->meshSize[k] > 0) for(int m = 0; m < chunk[j]->meshSize[k]; m++){
                         //printf("%d\n",counter);
                         glm_mat4_copy(chunk[j]->blocks[chunk[j]->models[k][m]].model,(*meshes)[i].model[counter]);
