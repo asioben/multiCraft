@@ -54,7 +54,7 @@ int getCurrentChunk(ChunkManager *chunk_, vec3s position){
     return 0;
 }
 
-int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, unsigned short *indices){
+int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short *indices){
     if(chunk_->update == true){
         chunk_->update = false;
         
@@ -107,7 +107,7 @@ int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, 
         
         }
         
-        if(concatenateMeshes(arena,chunk_->loadChunks,meshes,*types,chunk_->load_size,indices) == 0) safe_return("Concatenation of meshes failed\n");
+        if(concatenateMeshes(chunk_->loadChunks,meshes,*types,chunk_->load_size,indices) == 0) safe_return("Concatenation of meshes failed\n");
 
     }
 

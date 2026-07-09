@@ -24,7 +24,7 @@ int generateChunks(ChunkManager **chunk_, BIDS **types, int size);
 
 int getCurrentChunk(ChunkManager *chunk_, vec3s position);
 
-int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, unsigned short *indices);
+int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short *indices);
 
 int removeBlock(ChunkManager *chunk_, Camera *camera);
 

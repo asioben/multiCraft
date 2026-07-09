@@ -310,14 +310,14 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     return 1;
 }
 
-int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices){
+int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices){
     if(*meshes != NULL){
         //it depends on the number of meshes it had 
-       destroyMeshes(meshes,arena,types->counter + 1);
+       destroyMeshes(meshes,types->counter + 1);
        //printf("free\n");
-       *meshes = NULL;
+       //*meshes = NULL;
     }
-    *meshes = (Mesh *)arena_alloc(arena,(types->counter + 1) * sizeof(Mesh));
+    *meshes = malloc((types->counter + 1) * sizeof(Mesh));
     //printf("alloc\n");
     if(*meshes == NULL) return safe_return("Allocation of meshes failed");
     //printf("%d\n",types->counter);
@@ -332,7 +332,7 @@ int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, i
         vertex_init();
         int counter = 0;
         (*meshes)[i].size = types->sizes[i];
-        (*meshes)[i].model = (mat4 *) arena_alloc(arena,types->sizes[i] * sizeof(mat4));
+        (*meshes)[i].model = malloc(types->sizes[i] * sizeof(mat4));
         if((*meshes)[i].model == NULL) return safe_return("Model failed");
         for(int j = 0; j < size; j++){
             for(int k = 0; k < chunk[j]->meshesSize; k++){
@@ -357,6 +357,27 @@ int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, i
     return 1;
 }
 
+void updateMeshes(Arena *arena, Chunk *chunk, Mesh **meshes, BIDS *types, int size, int event, int element){
+    BlockID type_id = chunk->blocks[element].type;
+    chunk->blocks[element].type = AIR;
+    int id_type = 0;
+    for(int i = 0; i <= types->counter; i++){
+        if(types->type[i] == type_id){
+            id_type = i; 
+            break;
+        }
+    }
+    // REMOVE 
+    mat4 models[(*meshes)[id_type].size];
+    if(event == 0){
+        for(int j = 0; j < (*meshes)[id_type].size; j++){
+            glm_mat4_copy((*meshes)[id_type].model[j],models[j]);
+
+        }
+        (*meshes)[id_type].size -= 1;
+    }
+}
+
 void destroyChunks(Chunk *chunks){
     //printf("%i\n",chunks->meshesSize);
         free(chunks->meshSize);
@@ -368,15 +389,15 @@ void destroyChunks(Chunk *chunks){
         if(chunks->models != NULL)free(chunks->models);
 }
 
-void destroyMeshes(Mesh **meshes, Arena *arena, int size){
+void destroyMeshes(Mesh **meshes, int size){
     for(int i = 0; i < size; i++){
         vbo_ebo_destroy(&(*meshes)[i].VBO,&(*meshes)[i].EBO);
         vbo_ebo_destroy(&(*meshes)[i].instance,NULL);
         vao_destroy(&(*meshes)[i].VAO);
-        //free((*meshes)[i].model);
+        free((*meshes)[i].model);
     }
-    arena_reset(arena);
-    //free((*meshes));
+    //arena_reset(arena);
+    free((*meshes));
 }
 
 void destroyBIDS(BIDS **types){

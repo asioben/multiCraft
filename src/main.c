@@ -77,7 +77,7 @@ int main(){
     Arena arena;
     arena_init(&arena,16000000);
     Mesh *meshes = NULL;
-    if(loadChunks(chunkManager,&arena,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed\n");
+    if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed\n");
 
     int handles[3] = {0,0,0};
 
@@ -148,7 +148,7 @@ int main(){
                     }
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
                         if(getCurrentChunk(chunkManager,camera.position))
-                        if(loadChunks(chunkManager,&arena,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
+                        if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
                     }
                 }
             }
@@ -157,7 +157,7 @@ int main(){
     
     destroyBIDS(&bid);
     destroyChunkManager(&chunkManager);
-    destroyMeshes(&meshes,&arena,1);
+    destroyMeshes(&meshes,1);
     shaders_destroy(handles[1],handles[2],handles[0]);
     destroyTexture(&texture);
     arena_free(&arena);

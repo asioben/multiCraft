@@ -56,11 +56,11 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types);
 
 int generateMeshes(Chunk *chunk, BIDS *types);
 
-int concatenateMeshes(Arena *arena, Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
+int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
 
 void destroyChunks(Chunk *chunks);
 
-void destroyMeshes(Mesh **meshes, Arena *arena, int size);
+void destroyMeshes(Mesh **meshes, int size);
 
 void destroyBIDS(BIDS **types);
 
