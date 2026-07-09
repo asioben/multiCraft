@@ -9,7 +9,8 @@
 #include "../extra_utilities/arena.h"
 
 //other includes
-#include "assert.h"
+#include <assert.h>
+#include <cglm/cglm.h>
 
 #define CHUNK_WIDTH 16
 #define CHUNK_HEIGHT 32
@@ -27,6 +28,7 @@ typedef struct{
     int capacity;
     int *sizes;
 }BIDS; //Block Id struct that mimic a vector
+//BIDS stand for block idS but it can stand for block id struct
 
 typedef struct{
     //blocks info
@@ -57,6 +59,8 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types);
 int generateMeshes(Chunk *chunk, BIDS *types);
 
 int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
+
+int updateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int event, int element, int index);
 
 void destroyChunks(Chunk *chunks);
 

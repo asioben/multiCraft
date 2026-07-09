@@ -144,7 +144,7 @@ int main(){
                     keys = getKeys();
                     mouse = getMouse(event);
                     if(mouse.left == 1){
-                         removeBlock(chunkManager,&camera);
+                         removeBlock(chunkManager,&camera,&meshes,bid);
                     }
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
                         if(getCurrentChunk(chunkManager,camera.position))

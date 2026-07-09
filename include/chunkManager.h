@@ -8,6 +8,7 @@
 
 #define CHUNKS_LIMIT 196
 
+
 typedef struct{
     //different kind of chunks
     Chunk **loadChunks;
@@ -20,13 +21,14 @@ typedef struct{
     int currentChunk;
 }ChunkManager;
 
+
 int generateChunks(ChunkManager **chunk_, BIDS **types, int size);
 
 int getCurrentChunk(ChunkManager *chunk_, vec3s position);
 
 int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short *indices);
 
-int removeBlock(ChunkManager *chunk_, Camera *camera);
+int removeBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types);
 
 void destroyChunkManager(ChunkManager **chunk_);
 

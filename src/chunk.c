@@ -6,7 +6,6 @@ int fullSize = CHUNK_DEPTH * CHUNK_HEIGHT * CHUNK_WIDTH;
 int initBIDS(BIDS **types){
     if(*types != NULL){
          destroyBIDS(types); 
-         //printf("here\n");
          (*types) = NULL;
     }
     if(*types == NULL){
@@ -104,20 +103,14 @@ int generateChunk(Chunk *chunk, int seed){
 
     //there is a reason behind this if statement
     if(tree_created < number_of_tree){
-        //printf("///////////////\n");
-                    //printf("we were here\n");
                     vec3 translation = {random_(0,10),random_(12,14),random_(0,10)};
-                    //printf("%f,%f,%f\n",translation[0],translation[1],translation[2]);
                     tree_created += 1;
                     generateTree(tree_positions,tree_blocks);
                     checkTreeValidPosition(tree_positions[0],chunk->start,translation);
-                     //printf("%f,%f,%f\n",translation[0],translation[1],translation[2]);
-                    //printf()
                     for(int s = 0; s < 45; s++){
                         vec3 tree_position_ = {tree_positions[s].x,tree_positions[s].y,tree_positions[s].z};
                        
                         glm_vec3_add(tree_position_,translation,tree_position_);
-                        //printf("%f,%f,%f, type:%d\n",tree_positions[s].x,tree_positions[s].y,tree_positions[s].z,tree_blocks[s]);
                         tree_positions[s].x = tree_position_[0];
                         tree_positions[s].y = tree_position_[1];
                         tree_positions[s].z = tree_position_[2];
@@ -134,7 +127,6 @@ int generateChunk(Chunk *chunk, int seed){
                 float noise = fractalPerlin2D(position[0],j,0.01f,10,0.5f,seed);
                 int height = (int)((noise + 1.0f) * 15);
                 
-                //printf("%f,%f,%f\n",tree_positions[0].x,tree_positions[1].y,tree_positions[2].z);
                 if(k == height) {
                     chunk->blocks[counter].type = GRASS;
                     chunk->meshSize[0] += 1;
@@ -149,19 +141,15 @@ int generateChunk(Chunk *chunk, int seed){
                     chunk->meshSize[2] += 1;
                 }for(int u = 0; u < 45; u++){
                     if( tree_positions[u].x == (float)i && tree_positions[u].z == (float)j && tree_positions[u].y == (float)k){
-                    chunk->blocks[counter].type = tree_blocks[u];
-                    //printf("type: %d\n",tree_blocks[u]);
-                    if(tree_blocks[u] == OAK){
+                       chunk->blocks[counter].type = tree_blocks[u];
+                       if(tree_blocks[u] == OAK){
                          chunk->meshSize[3] += 1;
-                         //printf("oak tree here\n");
                         }
-                    else if(tree_blocks[u] == LEAVES) {
+                        else if(tree_blocks[u] == LEAVES) {
                         chunk->meshSize[4] += 1;
-                        //printf("leaves here\n");
-                    }
-                    //printf("%d,%d,%d\n",i,j,k);
-                }
-                }
+                        }
+                   }
+                } 
                 
                 if(chunk->minHeight == 0 || height < chunk->minHeight) chunk->minHeight = height;
                 chunk->blocks[counter].height = k;
@@ -197,8 +185,6 @@ static bool checkOccludedBlock(Block *blocks, int element){
     int z = (element / CHUNK_HEIGHT) % CHUNK_DEPTH;
     int x = element / (CHUNK_HEIGHT * CHUNK_DEPTH);
 
-    //printf("x:%d,y:%d,z:%d\n",x,y,z);
-
     for(int i = 0; i < 6; i++){
         if((elements[i] >= 0 && elements[i] < fullSize)){
             if(x == 0 || z == 0 || x == CHUNK_WIDTH - 1 || z == CHUNK_DEPTH - 1) return false;
@@ -207,7 +193,6 @@ static bool checkOccludedBlock(Block *blocks, int element){
             }else{
                occluder ++;
             }
-            //if(element >= (8192-512)) printf("%d,%d,%d\n",i,elements[i],occluder);
         }
     }
 
@@ -222,19 +207,14 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
     if(blocks == NULL) return NULL;
     int block_counter = -1;
     int meshSize = 1;
-    //printf("test:%d\n",types->sizes[0]);
-    //printf("héhé,%i\n",chunk->size);
     for(int i = 0; i < chunk->size; i++){
-        //printf("0\n");
         if((chunk->blocks[i].height >= chunk->minHeight)
          && (chunk->blocks[i].type != AIR) 
          && (checkOccludedBlock(chunk->blocks,i) == false)){
             block_counter += 1;
-            //printf("1\n");
             if(block_counter >= size){
                size *= 2;
                int *ptr = realloc(blocks,size * sizeof(int));
-               //printf("2\n");
                if(ptr == NULL) return NULL;
                else{
                 blocks = ptr;
@@ -244,9 +224,6 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
            updateBIDS(types,&chunk->blocks[i].type,1,&meshSize);
            
         }
-        //printf("%d:\n",block_counter);
-        //printf("%d,%d\n",types->sizes[0],types->sizes[1]);
-        //printf("%d:\n",meshSize);
     }
 
     *blocks_size = block_counter;
@@ -261,7 +238,6 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     int before_sizes[BLOCKS_LIMIT];
     for(int v = 0; v < BLOCKS_LIMIT; v++){
          before_sizes[v] = types->sizes[v];
-         //printf("these two: %d, %d\n",types->sizes[v],before_sizes[v]);
     }
     int *blocks = generateVisibleBlocks(chunk,&blocks_size,types);
     if(chunk->models != NULL) return 1;
@@ -278,7 +254,6 @@ int generateMeshes(Chunk *chunk, BIDS *types){
             if(before_counter < x) chunk->meshSize[x] += types->sizes[x];
             else chunk->meshSize[x] += types->sizes[x] - before_sizes[x];
         }
-        //printf("::%d\n",chunk->meshSize[x]);
     }
     
     if(chunk->models == NULL) chunk->models = malloc(chunk->meshesSize * sizeof(int*));
@@ -314,16 +289,10 @@ int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsig
     if(*meshes != NULL){
         //it depends on the number of meshes it had 
        destroyMeshes(meshes,types->counter + 1);
-       //printf("free\n");
-       //*meshes = NULL;
     }
     *meshes = malloc((types->counter + 1) * sizeof(Mesh));
-    //printf("alloc\n");
     if(*meshes == NULL) return safe_return("Allocation of meshes failed");
-    //printf("%d\n",types->counter);
-    //assert(types->counter == 1);
     for(int i = 0; i <= types->counter; i++){
-        //printf("meshesSize:%d, type:%d\n",types->type[i],types->sizes[i]);
         for (int j = 0; j < 36; j++) (*meshes)[i].indices[j] = indices[j];
         generateCube((*meshes)[i].vertices,types->type[i]);
         vao_init(&(*meshes)[i].VAO);
@@ -336,20 +305,14 @@ int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsig
         if((*meshes)[i].model == NULL) return safe_return("Model failed");
         for(int j = 0; j < size; j++){
             for(int k = 0; k < chunk[j]->meshesSize; k++){
-                //printf("here\n");
                 if(chunk[j]->types[k] == types->type[i]){
-                    //printf("0\n");
                     if(chunk[j]->meshSize[k] > 0) for(int m = 0; m < chunk[j]->meshSize[k]; m++){
-                        //printf("%d\n",counter);
                         glm_mat4_copy(chunk[j]->blocks[chunk[j]->models[k][m]].model,(*meshes)[i].model[counter]);
-                        //printf("2o\n");
                         counter += 1;
                     }
                 }
             }
         }
-        //printf("instances:%d\n",counter);
-        
         
         instance_init((*meshes)[i].VAO,&(*meshes)[i].instance,(*meshes)[i].model,sizeof(mat4) * types->sizes[i]);
     }
@@ -357,7 +320,7 @@ int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsig
     return 1;
 }
 
-void updateMeshes(Arena *arena, Chunk *chunk, Mesh **meshes, BIDS *types, int size, int event, int element){
+int updateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int event, int element, int index){
     BlockID type_id = chunk->blocks[element].type;
     chunk->blocks[element].type = AIR;
     int id_type = 0;
@@ -367,19 +330,57 @@ void updateMeshes(Arena *arena, Chunk *chunk, Mesh **meshes, BIDS *types, int si
             break;
         }
     }
-    // REMOVE 
-    mat4 models[(*meshes)[id_type].size];
-    if(event == 0){
-        for(int j = 0; j < (*meshes)[id_type].size; j++){
-            glm_mat4_copy((*meshes)[id_type].model[j],models[j]);
 
-        }
-        (*meshes)[id_type].size -= 1;
+    printf("%d,%d\n",element,index);
+
+    //i'll generalize later
+    mat4 *models = malloc(((*meshes)[id_type].size + event) * sizeof(mat4));
+
+    for(int j = 0; j < (*meshes)[id_type].size; j++){
+        int index_ = j;
+        int cond_count = 0;
+        
+        if(j >= index) index_ = j - 1;
+        glm_mat4_copy((*meshes)[id_type].model[j],models[index_]);
     }
+
+    vbo_ebo_destroy(&(*meshes)[id_type].VBO,&(*meshes)[id_type].EBO);
+    vbo_ebo_destroy(&(*meshes)[id_type].instance,NULL);
+    vao_destroy(&(*meshes)[id_type].VAO);
+
+    //
+    printf("0:%d\n",(*meshes)[id_type].size);
+
+    // REMOVE 
+    if(event == -1){
+        (*meshes)[id_type].size -= 1;
+        mat4 *ptr_ = realloc((*meshes)[id_type].model,(*meshes)[id_type].size * sizeof(mat4));
+        if(ptr_ == NULL) return safe_return("Reallocation of meshes model failed\n");
+        else{
+            (*meshes)[id_type].model = ptr_;
+        }
+        if((*meshes)[id_type].model == NULL) return safe_return("Allocation for model in meshes struct\n");
+        vao_init(&(*meshes)[id_type].VAO);
+        vbo_init(&(*meshes)[id_type].VBO,(*meshes)[id_type].vertices,sizeof((*meshes)[id_type].vertices));
+        ebo_init(&(*meshes)[id_type].EBO,(*meshes)[id_type].indices,sizeof((*meshes)[id_type].indices));
+        vertex_init();
+        printf("1:%d\n",(*meshes)[id_type].size);
+    }
+
+    for(int k = 0; k < (*meshes)[id_type].size; k++){
+        //printf("%p\n",models);
+        glm_mat4_copy(models[k],(*meshes)[id_type].model[k]);
+    }
+
+    instance_init((*meshes)[id_type].VAO,&(*meshes)[id_type].instance,(*meshes)[id_type].model,sizeof(mat4) * (*meshes)[id_type].size);
+
+    free(models);
+
+    return 0;
+
 }
 
 void destroyChunks(Chunk *chunks){
-    //printf("%i\n",chunks->meshesSize);
         free(chunks->meshSize);
         free(chunks->types);
         free(chunks->blocks);
