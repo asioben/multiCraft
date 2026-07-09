@@ -2,6 +2,7 @@
 
 int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
     //int seed = random_(1,10);
+    //printf("%d\n",seed);
     if((*chunk_) == NULL){
         (*chunk_) = malloc(1 * sizeof(ChunkManager));
         if(*chunk_ == NULL) return safe_return("Chunk manager allocation failed\n");
@@ -19,7 +20,6 @@ int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
         float z = (floorf(i/size)*CHUNK_DEPTH);
         vec3s start = {x,0,z}; 
         (*chunk_)->chunks[i].start = start; 
-        //printf("%i\n",i);
         if(generateChunk(&(*chunk_)->chunks[i],(3000000)) == 0) return safe_return("Generation of the chunk failed\n");
     }
     vec3s position = { size * 4.0f,16.0f, size * 4.0f};
@@ -54,34 +54,12 @@ int getCurrentChunk(ChunkManager *chunk_, vec3s position){
     return 0;
 }
 
-/*static int check_chunks_limit(vec3 chunk, float *frontier){
-    if(chunk[0] < frontier[0] || chunk[2] < frontier[0]){
-        return -1;
-    }
-
-    if(chunk[0] > frontier[1] || chunk[2] > frontier[1]){
-        //printf("%f,%f,%f",chunk[0],chunk[1],frontier[1]);
-        return 1;
-    }
-    return 0;
-}*/
-
-/*static void update_frontier(vec3 chunk, float *frontier, float x, float z, bool *trigger){
-    if(chunk[0] == *frontier){
-        *frontier = x;
-    }else if(chunk[1] == *frontier){
-        *frontier = z;
-    }
-    *trigger = true;
-}*/
-
 int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, unsigned short *indices){
     if(chunk_->update == true){
         chunk_->update = false;
-        //if(chunk_->loadChunks == NULL) chunk_->loadChunks = malloc(chunk_->load_size * sizeof(Chunk *));
-        //if(chunk_->loadChunks == NULL) return safe_return("Allocation of loading chunks failed");
+        
 
-        chunk_->load_size = 25;
+        chunk_->load_size = 49;
    
         vec3s central_ = chunk_->chunks[chunk_->currentChunk].start;
         vec3 central = {central_.x,0,central_.z};
@@ -89,10 +67,6 @@ int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, 
         int size = (int)sqrt(chunk_->load_size);
         vec3 start = {central[0] - (floor(size/2)*CHUNK_WIDTH), 0, central[2] - (floor(size/2)*CHUNK_DEPTH)};
 
-        //bool triggerWarning[2] = {false,false};
-
-        //int chunk_dim = (int)sqrt(chunk_->chunks_size) - 1;
-        //float frontier[2] = {0,chunk_dim * CHUNK_WIDTH};
 
         for(int b = 0; b < chunk_->load_size; b++){
          float x = b % size;
@@ -100,10 +74,6 @@ int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, 
          square[b][0] = start[0] + (x * CHUNK_WIDTH);
          square[b][1] = 0.0f;
          square[b][2] = start[2] + (z * CHUNK_DEPTH);
-         
-         //int direction = check_chunks_limit(square[b],frontier);
-         
-
         }
 
         int load_elements[chunk_->load_size];
@@ -146,6 +116,22 @@ int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, 
     return 1;
 }
 
+int removeBlock(ChunkManager *chunk_, Camera *camera){
+    for(int g = 0; g < chunk_->load_size; g++){
+        for(int h = 0; h < chunk_->loadChunks[g]->meshesSize; h++){
+            for(int d = 0; d < chunk_->loadChunks[g]->meshSize[h]; d++){
+                vec3 cube_pos = {0.0f,0.0f,0.0f};
+                glm_vec3_copy(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].model[3],cube_pos);
+                if(raytrace(camera->look.raw,camera->position.raw,cube_pos) == true){
+                    printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 void destroyChunkManager(ChunkManager **chunk_){
     for(int i = 0; i < (*chunk_)->chunks_size; i++)destroyChunks(&(*chunk_)->chunks[i]);
     if((*chunk_)->loadChunks != NULL) {
@@ -161,5 +147,4 @@ void destroyChunkManager(ChunkManager **chunk_){
  * that would seamlessly reallocate
  * and generate new chunks
  * up to 225 chunks
- * 
  *  ***/

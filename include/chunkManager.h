@@ -2,10 +2,11 @@
 #define CHUNKMANAGER_H
 
 #include "chunk.h"
+#include "physic.h"
 
 #include "../extra_utilities/arena.h"
 
-#define CHUNKS_LIMIT 225
+#define CHUNKS_LIMIT 196
 
 typedef struct{
     //different kind of chunks
@@ -24,6 +25,8 @@ int generateChunks(ChunkManager **chunk_, BIDS **types, int size);
 int getCurrentChunk(ChunkManager *chunk_, vec3s position);
 
 int loadChunks(ChunkManager *chunk_, Arena *arena, BIDS **types, Mesh **meshes, unsigned short *indices);
+
+int removeBlock(ChunkManager *chunk_, Camera *camera);
 
 void destroyChunkManager(ChunkManager **chunk_);
 

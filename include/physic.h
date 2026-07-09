@@ -3,6 +3,6 @@
 
 #include <cglm/struct.h>
 
-//int raytrace(vec3s look,);
+bool raytrace(vec3 look, vec3 position, vec3 cube);
 
 #endif

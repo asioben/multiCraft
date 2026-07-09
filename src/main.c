@@ -5,6 +5,9 @@
 #include "../include/block.h"
 #include "../include/chunk.h"
 #include "../include/chunkManager.h"
+#include "../include/physic.h"
+
+#include <time.h>
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -15,6 +18,8 @@ static void silent_failure(bool *loop, const char *msg){
 }
 
 int main(){
+
+    //srand(time(NULL));
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0)return(safe_exit("Erreur SDL",NULL,NULL));
 
@@ -138,11 +143,11 @@ int main(){
                 default: {
                     keys = getKeys();
                     mouse = getMouse(event);
+                    if(mouse.left == 1){
+                         removeBlock(chunkManager,&camera);
+                    }
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
-                        if(getCurrentChunk(chunkManager,camera.position)){
-                            //test_number += 1;
-                            //printf("test number: %d\n",test_number);
-                            };
+                        if(getCurrentChunk(chunkManager,camera.position))
                         if(loadChunks(chunkManager,&arena,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
                     }
                 }
