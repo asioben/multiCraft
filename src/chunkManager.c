@@ -100,7 +100,12 @@ int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short
          chunk_->loadChunks[d] = &chunk_->chunks[load_elements[d]];
         }
         //printf("bids\n");
-        initBIDS(types);
+        for(int a = 0; a <chunk_->load_size; a++){
+            if(chunk_->loadChunks[a]->models == NULL || chunk_->loadChunks[a]->update == true){
+                initBIDS(types);
+                break;
+            }
+        }
         
         for(int y = 0; y < chunk_->load_size; y++){
           if(generateMeshes(chunk_->loadChunks[y],*types) == 0)safe_return("Meshes failed\n");
@@ -121,13 +126,16 @@ int removeBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types
         for(int h = 0; h < chunk_->loadChunks[g]->meshesSize; h++){
             for(int d = 0; d < chunk_->loadChunks[g]->meshSize[h]; d++){
                 vec3 cube_pos = {0.0f,0.0f,0.0f};
-                //if(){}
-                glm_vec3_copy(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].model[3],cube_pos);
-                if(raytrace(camera->look.raw,camera->position.raw,cube_pos) == true){
-                    printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
-                    updateMeshes(chunk_->loadChunks[g],meshes,types,-1,chunk_->loadChunks[g]->models[h][d],d);
-                    return 1;
+                if(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type != AIR){
+                    glm_vec3_copy(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].model[3],cube_pos);
+                    /*if(raytrace(camera->look.raw,camera->position.raw,cube_pos) == true){
+                       printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
+                       //updateMeshes(chunk_->loadChunks[g],meshes,types,-1,chunk_->loadChunks[g]->models[h][d],d);
+                       //chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type = AIR;
+                       return 1;
+                    }*/
                 }
+                
             }
         }
     }

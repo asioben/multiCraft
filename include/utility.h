@@ -55,7 +55,7 @@ typedef struct{
     size_t capacity;
 }Vector;*/
 
-//safe return
+//return a 0
 int safe_return(const char *msg);
 
 //random function

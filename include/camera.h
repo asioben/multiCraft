@@ -18,13 +18,14 @@ typedef struct{
     float pitch;
     //matrix
     mat4s View;
+    mat4s Projection;
 }Camera;
 
 void initCamera(Camera *camera, vec3s position, vec3s look);
 
-mat4s worldMatrix(mat4s View);
+mat4s worldMatrix(mat4s View, mat4s Projection);
 
-void matrix_init(mat4s View , unsigned int program, unsigned int *matrix, int *counter);
+void matrix_init(mat4s View, mat4s Projection, unsigned int program, unsigned int *matrix, int *counter);
 
 int cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaTime);
 

@@ -131,9 +131,10 @@ int main(){
            free(fps_string);
            free(final_fps_string);
         }
+        
         deltaTime(&tick);
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
-        matrix_init(camera.View,handles[0],&matrix,&counter);
+        matrix_init(camera.View,camera.Projection,handles[0],&matrix,&counter);
         render(meshes,BLOCKS_LIMIT,handles[0],texture);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
@@ -144,6 +145,10 @@ int main(){
                     keys = getKeys();
                     mouse = getMouse(event);
                     if(mouse.left == 1){
+                        printf("position: %f,%f,%f\n",camera.position.x,camera.position.y,camera.position.z);
+                        vec2 m_ = {mouse.position.x,mouse.position.y};
+                        vec2 s_ = {WIDTH,HEIGHT};
+                         screenToWorld(m_,s_,camera.View.raw,camera.Projection.raw);
                          removeBlock(chunkManager,&camera,&meshes,bid);
                     }
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 

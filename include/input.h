@@ -3,6 +3,9 @@
 
 #include "utility.h"
 
+#define WIDTH 800
+#define HEIGHT 600
+
 typedef struct {
     SDL_Point position;
     SDL_Point motion;

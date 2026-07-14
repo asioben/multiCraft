@@ -163,8 +163,8 @@ int generateChunk(Chunk *chunk, int seed){
     //if(updateBIDS((*types),chunk->types,chunk->meshesSize,chunk->meshSize) == 0) return safe_return("BIDS update failed");
     
     chunk->size = counter;
-    chunk->current = true;
-    chunk->update = true;
+    chunk->current = false;
+    chunk->update = false;
 
     return 1;
 }
@@ -207,6 +207,7 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
     if(blocks == NULL) return NULL;
     int block_counter = -1;
     int meshSize = 1;
+    //printf("ok: %d\n",chunk->blocks[3819].type);
     for(int i = 0; i < chunk->size; i++){
         if((chunk->blocks[i].height >= chunk->minHeight)
          && (chunk->blocks[i].type != AIR) 
@@ -225,13 +226,13 @@ int *generateVisibleBlocks(Chunk *chunk, int *blocks_size, BIDS *types){
            
         }
     }
-
-    *blocks_size = block_counter;
+    if(*blocks_size != NULL) *blocks_size = block_counter;
 
     return blocks;
 }
 
 int generateMeshes(Chunk *chunk, BIDS *types){
+    if(chunk->models != NULL && chunk->update != true) return 1;
     int blocks_size = -1;
     int before_counter = types->counter;
     if(before_counter < 0) before_counter = 0;
@@ -240,26 +241,28 @@ int generateMeshes(Chunk *chunk, BIDS *types){
          before_sizes[v] = types->sizes[v];
     }
     int *blocks = generateVisibleBlocks(chunk,&blocks_size,types);
-    if(chunk->models != NULL) return 1;
     for(int w = 0; w < chunk->meshesSize; w++){
         chunk->meshSize[w] = 0;
         chunk->types[w] = AIR;
     }
     chunk->meshesSize = 0;
-    if(before_counter < types->counter) chunk->meshesSize += (types->counter - before_counter);
+    //if(before_counter < types->counter) chunk->meshesSize += (types->counter - before_counter);
     for(int x = 0; x <= types->counter; x++){
        
         if((types->sizes[x] - before_sizes[x]) > 0){
             chunk->meshesSize += 1;
+            //printf("we are %d\n",chunk->meshesSize);
             if(before_counter < x) chunk->meshSize[x] += types->sizes[x];
             else chunk->meshSize[x] += types->sizes[x] - before_sizes[x];
         }
     }
     
     if(chunk->models == NULL) chunk->models = malloc(chunk->meshesSize * sizeof(int*));
+    //else return safe_return("Already allocated\n");
+    //if(chunk->update == true) chunk->models = realloc(chunk->meshesSize * sizeof(int *));
     if(chunk->models == NULL) return safe_return("Allocate models failed\n");
         
-    
+   // printf("n: %d\n",chunk->meshesSize);
     //in case the chunk update we need to change that
     //PLEASE dont forget that 
     //pLEAAAse
@@ -267,11 +270,21 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     //UPDATE
     //I think I remember what I needed to change
     //it caused me a very BIG issue :( !!!!!
-    if((chunk->models) == NULL) return safe_return("Models failed\n");
     for(int i = 0; i < chunk->meshesSize; i++){
-        chunk->models[i] = malloc(chunk->meshSize[i] * sizeof(int));
+        //printf("%d\n",types->type[i]);
+        if(chunk->update != true){
+            chunk->models[i] = malloc(chunk->meshSize[i] * sizeof(int));
+            if(chunk->models[i] == NULL) return safe_return("Models failed AGAIN !\n");
+            //printf("here at first %d\n",i);
+        }else{
+            mat4 *ptr = realloc(chunk->models[i],chunk->meshSize[i] * sizeof(int));
+            if(ptr == NULL) return safe_return("Reallocation of models failed\n");
+            else{
+                chunk->models[i] = ptr;
+                //printf("then here %d\n",i);
+            }
+        }
         chunk->types[i] = types->type[i];
-        if(chunk->models[i] == NULL) return safe_return("Models failed AGAIN !\n");
             int counter = 0;
             for(int k = 0; k <= blocks_size; k++){
                if(chunk->blocks[blocks[k]].type == types->type[i]){
@@ -293,6 +306,7 @@ int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsig
     *meshes = malloc((types->counter + 1) * sizeof(Mesh));
     if(*meshes == NULL) return safe_return("Allocation of meshes failed");
     for(int i = 0; i <= types->counter; i++){
+        if(types->type[i] == 1) printf("y:%d\n",types->sizes[i]);
         for (int j = 0; j < 36; j++) (*meshes)[i].indices[j] = indices[j];
         generateCube((*meshes)[i].vertices,types->type[i]);
         vao_init(&(*meshes)[i].VAO);
@@ -320,51 +334,99 @@ int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsig
     return 1;
 }
 
+static int meshesSmallRoutine(Mesh **meshes, int element){
+    mat4 *ptr_ = realloc((*meshes)[element].model,(*meshes)[element].size * sizeof(mat4));
+        if(ptr_ == NULL) return safe_return("Reallocation of meshes model failed\n");
+        else{
+            (*meshes)[element].model = ptr_;
+            //printf("ici\n");
+        }
+        //if((*meshes)[element].model == NULL) return safe_return("Allocation for model in meshes struct\n");
+        vao_init(&(*meshes)[element].VAO);
+        vbo_init(&(*meshes)[element].VBO,(*meshes)[element].vertices,sizeof((*meshes)[element].vertices));
+        ebo_init(&(*meshes)[element].EBO,(*meshes)[element].indices,sizeof((*meshes)[element].indices));
+        vertex_init();
+
+        return 1;
+}
+
+static void copyModelsRoutine(mat4 *models, Mesh **meshes, int shift, int element, int index){
+    for(int j = 0; j < (*meshes)[element].size; j++){
+        int index_ = j;
+        int cond_count = 0;
+
+        if(j >= index) index_ = j + shift;
+        glm_mat4_copy((*meshes)[element].model[j],models[index_]);
+    }
+
+}
+
 int updateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int event, int element, int index){
     BlockID type_id = chunk->blocks[element].type;
-    chunk->blocks[element].type = AIR;
     int id_type = 0;
     for(int i = 0; i <= types->counter; i++){
         if(types->type[i] == type_id){
             id_type = i; 
-            break;
+            break; 
         }
     }
-
-    printf("%d,%d\n",element,index);
+    chunk->blocks[element].type = AIR;
+    //printf("%d,%d\n",element,index);
 
     //i'll generalize later
     mat4 *models = malloc(((*meshes)[id_type].size + event) * sizeof(mat4));
 
-    for(int j = 0; j < (*meshes)[id_type].size; j++){
-        int index_ = j;
-        int cond_count = 0;
-        
-        if(j >= index) index_ = j - 1;
-        glm_mat4_copy((*meshes)[id_type].model[j],models[index_]);
-    }
+    copyModelsRoutine(models,meshes,event,id_type,index);
 
     vbo_ebo_destroy(&(*meshes)[id_type].VBO,&(*meshes)[id_type].EBO);
     vbo_ebo_destroy(&(*meshes)[id_type].instance,NULL);
     vao_destroy(&(*meshes)[id_type].VAO);
 
     //
-    printf("0:%d\n",(*meshes)[id_type].size);
+    //printf("0:%d\n",(*meshes)[id_type].size);
+
+    int chunk_sizes_holder[chunk->meshesSize];
 
     // REMOVE 
     if(event == -1){
         (*meshes)[id_type].size -= 1;
-        mat4 *ptr_ = realloc((*meshes)[id_type].model,(*meshes)[id_type].size * sizeof(mat4));
-        if(ptr_ == NULL) return safe_return("Reallocation of meshes model failed\n");
-        else{
-            (*meshes)[id_type].model = ptr_;
+        if(meshesSmallRoutine(meshes,id_type) == 0) return 0;
+        //printf("1:%d\n",(*meshes)[id_type].size);
+        for(int i = 0; i < chunk->meshesSize; i++){
+            chunk_sizes_holder[i] = types->sizes[i];
+            //printf("types: %d\n",types->sizes[i]);
+            types->sizes[i] -= chunk->meshSize[i];
+            
         }
-        if((*meshes)[id_type].model == NULL) return safe_return("Allocation for model in meshes struct\n");
-        vao_init(&(*meshes)[id_type].VAO);
-        vbo_init(&(*meshes)[id_type].VBO,(*meshes)[id_type].vertices,sizeof((*meshes)[id_type].vertices));
-        ebo_init(&(*meshes)[id_type].EBO,(*meshes)[id_type].indices,sizeof((*meshes)[id_type].indices));
-        vertex_init();
-        printf("1:%d\n",(*meshes)[id_type].size);
+        chunk->update = true;
+        generateMeshes(chunk,types);
+        for(int i = 0; i < chunk->meshesSize; i++){
+            int diff = types->sizes[i] - chunk_sizes_holder[i];
+            //printf("again %d\n",types->sizes[i]);
+            if(diff == 1){
+            int idx = 0;
+               printf("touché, %d,%d,%d\n",diff,i,types->type[i]);
+            
+               for(int j = 0; j < chunk->meshSize[i]; j++){
+                //printf("testons: %d\n",chunk->blocks[chunk->models[i][j]].type);
+                if(glm_vec3_eqv(chunk->blocks[chunk->models[i][j]].model[3],(*meshes)[i].model[j][3]) == false){
+                    printf("its true %d\n",j);
+                    idx = chunk->models[i][j];
+                    break;
+                } 
+               }
+               vbo_ebo_destroy(&(*meshes)[i].VBO,&(*meshes)[i].EBO);
+               vbo_ebo_destroy(&(*meshes)[i].instance,NULL);
+               vao_destroy(&(*meshes)[i].VAO);
+               (*meshes)[i].size += 1;
+               if(meshesSmallRoutine(meshes,i) == 0) return 0;
+               //printf("%d,%d,%d\n",(*meshes)[i].model[0][3][0],(*meshes)[i].model[0][3][1],(*meshes)[i].model[0][3][2]);
+
+               glm_mat4_copy(chunk->blocks[idx].model,(*meshes)[i].model[(*meshes)[i].size - 1]);
+               instance_init((*meshes)[i].VAO,&(*meshes)[i].instance,(*meshes)[i].model,sizeof(mat4) * (*meshes)[i].size);
+            }
+        }
+
     }
 
     for(int k = 0; k < (*meshes)[id_type].size; k++){
@@ -375,6 +437,8 @@ int updateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int event, int elemen
     instance_init((*meshes)[id_type].VAO,&(*meshes)[id_type].instance,(*meshes)[id_type].model,sizeof(mat4) * (*meshes)[id_type].size);
 
     free(models);
+
+    //chunk->update = true;
 
     return 0;
 
@@ -406,3 +470,12 @@ void destroyBIDS(BIDS **types){
     free((*types)->sizes);
     free(*types);
 }
+
+/**
+ * For dynamic
+ * I'd only update the updated chunk
+ * some note:
+ * 1: chunk->minHeight should be checked
+ * I should lower it every time we lower the height 
+ * that's been rendered
+ */

@@ -17,13 +17,13 @@ void initCamera(Camera *camera, vec3s position, vec3s look){
     camera->pitch = 0.0f;
     //matrix
     //camera->View = glms_lookat(camera->position,camera->look,camera->up);
+    //create the projection matrix
+    camera->Projection = glms_perspective(glm_rad(45.0f),(float)WIDTH/(float)HEIGHT,0.1f,100.0f);
 }
 
-mat4s worldMatrix(mat4s View){
+mat4s worldMatrix(mat4s View, mat4s Projection){
     //create the model matrix, an identity matrix
     mat4s Model = glms_mat4_identity();
-    //create the projection matrix
-    mat4s Projection = glms_perspective(glm_rad(45.0f),(float)WIDTH/(float)HEIGHT,0.1f,100.0f);
     //create the world matrix
     mat4s VP = glms_mat4_mul(Projection,View);
     mat4s World =  glms_mat4_mul(VP,Model);
@@ -31,8 +31,8 @@ mat4s worldMatrix(mat4s View){
     return World;
 }
 
-void matrix_init(mat4s View, unsigned int program, unsigned int *matrix, int *counter){
-    mat4s World_ = worldMatrix(View);
+void matrix_init(mat4s View, mat4s Projection, unsigned int program, unsigned int *matrix, int *counter){
+    mat4s World_ = worldMatrix(View,Projection);
     mat4 World;
     memcpy(World,World_.raw,sizeof(mat4));
     if(*counter == 0) {
