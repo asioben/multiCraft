@@ -403,7 +403,7 @@ int updateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int event, int elemen
         for(int i = 0; i < chunk->meshesSize; i++){
             int diff = types->sizes[i] - chunk_sizes_holder[i];
             //printf("again %d\n",types->sizes[i]);
-            if(diff == 1){
+            if(diff > 100000){
             int idx = 0;
                printf("touché, %d,%d,%d\n",diff,i,types->type[i]);
             

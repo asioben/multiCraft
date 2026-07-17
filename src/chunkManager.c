@@ -121,19 +121,20 @@ int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short
     return 1;
 }
 
-int removeBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types){
+int removeBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types, float *ray){
     for(int g = 0; g < chunk_->load_size; g++){
         for(int h = 0; h < chunk_->loadChunks[g]->meshesSize; h++){
             for(int d = 0; d < chunk_->loadChunks[g]->meshSize[h]; d++){
                 vec3 cube_pos = {0.0f,0.0f,0.0f};
                 if(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type != AIR){
                     glm_vec3_copy(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].model[3],cube_pos);
-                    /*if(raytrace(camera->look.raw,camera->position.raw,cube_pos) == true){
+                    if(raytrace(ray,camera->position.raw,cube_pos) == true){
                        printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
                        //updateMeshes(chunk_->loadChunks[g],meshes,types,-1,chunk_->loadChunks[g]->models[h][d],d);
-                       //chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type = AIR;
+                       chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type = AIR;
                        return 1;
-                    }*/
+                    }
+                    
                 }
                 
             }

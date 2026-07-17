@@ -145,11 +145,14 @@ int main(){
                     keys = getKeys();
                     mouse = getMouse(event);
                     if(mouse.left == 1){
-                        printf("position: %f,%f,%f\n",camera.position.x,camera.position.y,camera.position.z);
+                        //printf("position: %f,%f,%f\n",camera.position.x,camera.position.y,camera.position.z);
                         vec2 m_ = {mouse.position.x,mouse.position.y};
                         vec2 s_ = {WIDTH,HEIGHT};
-                         screenToWorld(m_,s_,camera.View.raw,camera.Projection.raw);
-                         removeBlock(chunkManager,&camera,&meshes,bid);
+                        vec3 ray;
+                        vec3 cube = {55.0f,12.0f,55.0f};
+                         screenToWorld(m_,s_,camera.View.raw,camera.Projection.raw,ray);
+                         //raytrace(m_w,camera.position.raw,camera.look.raw,cube);
+                         removeBlock(chunkManager,&camera,&meshes,bid,ray);
                     }
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
                         if(getCurrentChunk(chunkManager,camera.position))
