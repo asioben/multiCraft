@@ -60,7 +60,7 @@ int generateMeshes(Chunk *chunk, BIDS *types);
 
 int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsigned short *indices);
 
-int updateMeshes(Chunk *chunk, Mesh **meshes, BIDS *types, int event, int element, int index);
+int updateMeshes(Chunk **chunks, Mesh **meshes, BIDS *types, int chunk, int size, unsigned short *indices);
 
 void destroyChunks(Chunk *chunks);
 
