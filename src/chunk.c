@@ -39,7 +39,7 @@ int updateBIDS(BIDS *types, BlockID *types_, int size, int *meshSize){
         int inside = 0;
         BlockID type = AIR;
         int meshSize_ = 0;
-        if(size > 1){
+        if(size <= 1){
             type = *types_;
             meshSize_ = *meshSize;
             inside = insideBIDS(types,*types_,&element);
@@ -280,9 +280,10 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     for(int i = 0; i < chunk->meshesSize; i++){
         //printf("type: %d\n",types->type[i]);
         if(((chunk->meshesSize - meshesBefore) >= 1 && i >= meshesBefore && chunk->update == true) || chunk->update != true ){
+            //printf("%d,chunk:%d\n",i,chunk->meshSize[i]);
             chunk->models[i] = malloc(chunk->meshSize[i] * sizeof(int));
             if(chunk->models[i] == NULL) return safe_return("Models failed AGAIN !\n");
-            //printf("here at first %d\n",i);
+        //printf("here at first %d\n",i);
         }else{
             //printf("ok: %d\n",chunk->meshSize[i]);
             int *ptr = realloc(chunk->models[i],chunk->meshSize[i] * sizeof(int));
@@ -323,20 +324,21 @@ int concatenateMeshes(Chunk **chunk, Mesh **meshes, BIDS *types, int size, unsig
         vertex_init();
         int counter = 0;
         (*meshes)[i].size = types->sizes[i];
-        (*meshes)[i].model = malloc(types->sizes[i] * sizeof(mat4));
+        (*meshes)[i].model = malloc((*meshes)[i].size * sizeof(mat4));
         if((*meshes)[i].model == NULL) return safe_return("Model failed");
         for(int j = 0; j < size; j++){
             for(int k = 0; k < chunk[j]->meshesSize; k++){
                 if(chunk[j]->types[k] == types->type[i]){
                     if(chunk[j]->meshSize[k] > 0) for(int m = 0; m < chunk[j]->meshSize[k]; m++){
+                        if(counter >= (*meshes)[i].size)break;
                         glm_mat4_copy(chunk[j]->blocks[chunk[j]->models[k][m]].model,(*meshes)[i].model[counter]);
-                        counter += 1;
+                        counter ++;
                     }
                 }
             }
         }
-        
-        instance_init((*meshes)[i].VAO,&(*meshes)[i].instance,(*meshes)[i].model,sizeof(mat4) * types->sizes[i]);
+        //printf("%d,%d\n",counter,types->sizes[i]);
+        instance_init((*meshes)[i].VAO,&(*meshes)[i].instance,(*meshes)[i].model,sizeof(mat4) * (*meshes)[i].size);
     }
 
     return 1;

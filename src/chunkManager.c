@@ -59,7 +59,7 @@ int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short
         chunk_->update = false;
         
 
-        chunk_->load_size = 1;
+        chunk_->load_size = 25;
    
         vec3s central_ = chunk_->chunks[chunk_->currentChunk].start;
         vec3 central = {central_.x,0,central_.z};
@@ -99,16 +99,14 @@ int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short
         for(int d = 0; d < chunk_->load_size; d++){
          chunk_->loadChunks[d] = &chunk_->chunks[load_elements[d]];
         }
-        //printf("bids\n");
-        for(int a = 0; a <chunk_->load_size; a++){
-            if(chunk_->loadChunks[a]->models == NULL || chunk_->loadChunks[a]->update == true){
-                initBIDS(types);
-                break;
-            }
-        }
+        initBIDS(types);
         
         for(int y = 0; y < chunk_->load_size; y++){
-          if(generateMeshes(chunk_->loadChunks[y],*types) == 0)safe_return("Meshes failed\n");
+          int return_ = generateMeshes(chunk_->loadChunks[y],*types);
+          if(return_ == 0)safe_return("Meshes failed\n");
+          else if(return_ == 1){
+            updateBIDS((*types),chunk_->loadChunks[y]->types,chunk_->loadChunks[y]->meshesSize,chunk_->loadChunks[y]->meshSize);
+          }
         
         }
         
