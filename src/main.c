@@ -144,18 +144,22 @@ int main(){
                 default: {
                     keys = getKeys();
                     mouse = getMouse(event);
-                    if(mouse.left == 1){
+                    if(mouse.left == 1 || mouse.right == 4){
                         //printf("position: %f,%f,%f\n",camera.position.x,camera.position.y,camera.position.z);
                         vec2 m_ = {mouse.position.x,mouse.position.y};
                         vec2 s_ = {WIDTH,HEIGHT};
                         vec3 ray;
-                        vec3 cube = {55.0f,12.0f,55.0f};
-                         screenToWorld(m_,s_,camera.View.raw,camera.Projection.raw,ray);
-                         //raytrace(m_w,camera.position.raw,camera.look.raw,cube);
-                         //EVENT
-                         //REMOVE = 0
-                         //ADD = 1
-                         updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,1);
+                        //vec3 cube = {55.0f,12.0f,55.0f};
+                        screenToWorld(m_,s_,camera.View.raw,camera.Projection.raw,ray);
+                        if(mouse.left == 1){
+                             //raytrace(m_w,camera.position.raw,camera.look.raw,cube);
+                             //EVENT
+                             //REMOVE = 0
+                             //ADD = 1
+                             updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,0);
+                        }else if(mouse.right == 4){
+                             updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,1);
+                        }
                     }
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
                         if(getCurrentChunk(chunkManager,camera.position))

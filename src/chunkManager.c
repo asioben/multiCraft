@@ -140,7 +140,7 @@ int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types
                     chunk_->loadChunks[g]->minHeight -= 1;
                    }
 
-                   printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
+                   //printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
                    updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices);
                    return 1;
                 }
@@ -151,7 +151,7 @@ int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types
             for(int b = 0; b < chunk_->loadChunks[g]->size; b++){
                 if(chunk_->loadChunks[g]->blocks[b].type == AIR){
                     vec3 cube_pos = {0.0f,0.0f,0.0f};
-                    //REMOVE SNIPPET
+                    //ADD SNIPPET
                     
                     glm_vec3_copy(chunk_->loadChunks[g]->blocks[b].model[3],cube_pos);
 
