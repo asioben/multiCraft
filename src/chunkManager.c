@@ -59,7 +59,7 @@ int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short
         chunk_->update = false;
         
 
-        chunk_->load_size = 25;
+        chunk_->load_size = 81;
    
         vec3s central_ = chunk_->chunks[chunk_->currentChunk].start;
         vec3 central = {central_.x,0,central_.z};
@@ -119,25 +119,51 @@ int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short
     return 1;
 }
 
-int removeBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types, float *ray, unsigned short *indices){
+int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types, float *ray, unsigned short *indices, int event){
+    //EVENT 0 == REMOVE
+    //EVENT 1 == ADD
     for(int g = 0; g < chunk_->load_size; g++){
-        for(int h = 0; h < chunk_->loadChunks[g]->meshesSize; h++){
-            for(int d = 0; d < chunk_->loadChunks[g]->meshSize[h]; d++){
+        if(event == 0){
+            for(int h = 0; h < chunk_->loadChunks[g]->meshesSize; h++){
+             for(int d = 0; d < chunk_->loadChunks[g]->meshSize[h]; d++){
+            
                 vec3 cube_pos = {0.0f,0.0f,0.0f};
-                if(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type != AIR){
-                    glm_vec3_copy(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].model[3],cube_pos);
+                //REMOVE SNIPPET
+                
+                glm_vec3_copy(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].model[3],cube_pos);
+
+                if(raytrace(ray,camera->position.raw,cube_pos) == true){
+
+                   chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type = AIR;
+
+                   if(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].height <= chunk_->loadChunks[g]->minHeight){
+                    chunk_->loadChunks[g]->minHeight -= 1;
+                   }
+
+                   printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
+                   updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices);
+                   return 1;
+                }
+                
+               } 
+            }
+        }else if(event == 1){
+            for(int b = 0; b < chunk_->loadChunks[g]->size; b++){
+                if(chunk_->loadChunks[g]->blocks[b].type == AIR){
+                    vec3 cube_pos = {0.0f,0.0f,0.0f};
+                    //REMOVE SNIPPET
+                    
+                    glm_vec3_copy(chunk_->loadChunks[g]->blocks[b].model[3],cube_pos);
+
                     if(raytrace(ray,camera->position.raw,cube_pos) == true){
-                       chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type = AIR;
-                       if(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].height <= chunk_->loadChunks[g]->minHeight){
-                        chunk_->loadChunks[g]->minHeight -= 1;
-                       }
+
+                       chunk_->loadChunks[g]->blocks[b].type = STONE;
+
                        printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
                        updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices);
                        return 1;
                     }
-                    
                 }
-                
             }
         }
     }

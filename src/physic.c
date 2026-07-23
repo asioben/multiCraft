@@ -94,15 +94,15 @@ bool raytrace(vec3 ray, vec3 position, vec3 cube){
     printf("/////////////////////\n");*/
 
     vec3 min = {
-        cube[0] - 0.5f,
-        cube[1] - 0.5f,
-        cube[2] - 0.5f
+        cube[0] - 1.0f,
+        cube[1] - 1.0f,
+        cube[2] - 1.0f
     };
 
     vec3 max = {
-        cube[0] + 0.5f,
-        cube[1] + 0.5f,
-        cube[2] + 0.5f
+        cube[0] + 1.0f,
+        cube[1] + 1.0f,
+        cube[2] + 1.0f
     };
 
     float tmin = -FLT_MAX;

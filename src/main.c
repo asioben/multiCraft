@@ -152,7 +152,10 @@ int main(){
                         vec3 cube = {55.0f,12.0f,55.0f};
                          screenToWorld(m_,s_,camera.View.raw,camera.Projection.raw,ray);
                          //raytrace(m_w,camera.position.raw,camera.look.raw,cube);
-                         removeBlock(chunkManager,&camera,&meshes,bid,ray,indices);
+                         //EVENT
+                         //REMOVE = 0
+                         //ADD = 1
+                         updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,1);
                     }
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
                         if(getCurrentChunk(chunkManager,camera.position))

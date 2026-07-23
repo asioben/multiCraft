@@ -70,7 +70,7 @@ void generateTree(vec3s *positions, BlockID *blocks){
     blocks[counter] = LEAVES;
 }
 
-void checkTreeValidPosition(vec3s position, vec3s start, vec3 output){
+void checkTreeValidPosition(vec3s position, vec3s start, float *output){
     vec3s frontier[2] = {
         {start.x,start.y,start.z},
         {start.x + chunk_width,start.y,start.z + chunk_depth}
