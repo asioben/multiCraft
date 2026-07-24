@@ -95,29 +95,6 @@ int generateChunk(Chunk *chunk, int seed){
     chunk->models = NULL;
     chunk->minHeight = 0;
 
-    int number_of_tree = 1;
-    int tree_created = 0;
-    vec3s tree_positions[45];
-    BlockID tree_blocks[45];
-    int tree_counter = 0;
-
-    //there is a reason behind this if statement
-    if(tree_created < number_of_tree){
-                    vec3 translation = {random_(0,10),random_(13,15),random_(0,10)};
-                    tree_created += 1;
-                    generateTree(tree_positions,tree_blocks);
-                    checkTreeValidPosition(tree_positions[0],chunk->start,translation);
-                    for(int s = 0; s < 45; s++){
-                        vec3 tree_position_ = {tree_positions[s].x,tree_positions[s].y,tree_positions[s].z};
-                       
-                        glm_vec3_add(tree_position_,translation,tree_position_);
-                        tree_positions[s].x = tree_position_[0];
-                        tree_positions[s].y = tree_position_[1];
-                        tree_positions[s].z = tree_position_[2];
-                        
-                    }
-    }
-
     for(int i = 0; i < CHUNK_WIDTH; i++){
         for(int j = 0; j < CHUNK_DEPTH; j++){
             for(int k = 0; k < CHUNK_HEIGHT; k++){
@@ -139,8 +116,8 @@ int generateChunk(Chunk *chunk, int seed){
                 else if(k <= (int)(height / 2)){
                     chunk->blocks[counter].type = STONE; 
                     chunk->meshSize[2] += 1;
-                }for(int u = 0; u < 45; u++){
-                    if( tree_positions[u].x == (float)i && tree_positions[u].z == (float)j && tree_positions[u].y == (float)k){
+                }for(int u = 0; u < TREE_SIZE; u++){
+                    /*if( tree_positions[u].x == (float)i && tree_positions[u].z == (float)j && tree_positions[u].y == (float)k){
                        chunk->blocks[counter].type = tree_blocks[u];
                        if(tree_blocks[u] == OAK){
                          chunk->meshSize[3] += 1;
@@ -148,7 +125,7 @@ int generateChunk(Chunk *chunk, int seed){
                         else if(tree_blocks[u] == LEAVES) {
                         chunk->meshSize[4] += 1;
                         }
-                   }
+                   }*/
                 } 
                 
                 if(chunk->minHeight == 0 || height < chunk->minHeight) chunk->minHeight = height;
@@ -161,11 +138,61 @@ int generateChunk(Chunk *chunk, int seed){
         }
     }
 
-    //if(updateBIDS((*types),chunk->types,chunk->meshesSize,chunk->meshSize) == 0) return safe_return("BIDS update failed");
-    
+
     chunk->size = counter;
     chunk->current = false;
     chunk->update = false;
+
+    int number_of_tree = 1;
+    int tree_created = 0;
+    vec3s tree_positions[TREE_SIZE];
+    BlockID tree_blocks[TREE_SIZE];
+    int tree_counter = 0;
+
+    //there is a reason behind this if statement
+    if(tree_created < number_of_tree){
+       vec3 translation = {random_(0,10),random_(15,16),random_(0,10)};
+       int position = translation[1] + (translation[2] * CHUNK_HEIGHT) + (translation[0] * CHUNK_HEIGHT * CHUNK_DEPTH);
+       if(chunk->blocks[position].type != AIR) return 1;
+       //printf("here\n");
+       if(chunk->blocks[position - 1].type != GRASS) return 1;
+       tree_created += 1;
+       generateTree(tree_positions,tree_blocks);
+       checkTreeValidPosition(tree_positions[0],translation);
+       for(int s = 0; s < TREE_SIZE; s++){
+           vec3 tree_position_ = {tree_positions[s].x,tree_positions[s].y,tree_positions[s].z};
+          
+           glm_vec3_add(tree_position_,translation,tree_position_);
+           tree_positions[s].x = tree_position_[0];
+           tree_positions[s].y = tree_position_[1];
+           tree_positions[s].z = tree_position_[2];
+           
+       }
+    }
+
+    for(int x = 0; x < TREE_SIZE; x++){
+        //if(tree_positions[x].x >= 16) tree_positions[x].x = 15;
+        //if(tree_positions[x].z >= 16) tree_positions[x].z = 15;
+        //if(tree_positions[x].y >= 32) tree_positions[x].y = 31;
+        int position = tree_positions[x].y + (tree_positions[x].z * CHUNK_HEIGHT) + (tree_positions[x].x * CHUNK_HEIGHT * CHUNK_DEPTH);
+        if(tree_positions[x].x == 16) tree_positions[x].x -= 1;
+        //printf("%d,%f,%f,%f\n",position,tree_positions[x].x,tree_positions[x].y,tree_positions[x].z);
+        chunk->blocks[position].type = tree_blocks[x];
+        if(tree_blocks[x] == OAK){
+          chunk->meshSize[3] += 1;
+        }else if(tree_blocks[x] == LEAVES) {
+         chunk->meshSize[4] += 1;
+        }
+        chunk->blocks[counter].height = tree_positions[x].y;
+        glm_vec3_add(chunk->start.raw,tree_positions[x].raw,tree_positions[x].raw);
+        //chunk->blocks[counter].t = -1.0f;
+        glm_mat4_identity(chunk->blocks[position].model);
+        glm_translate(chunk->blocks[position].model,tree_positions[x].raw);
+    }
+
+    
+
+    //if(updateBIDS((*types),chunk->types,chunk->meshesSize,chunk->meshSize) == 0) return safe_return("BIDS update failed");
 
     return 1;
 }

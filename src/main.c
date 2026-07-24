@@ -19,7 +19,7 @@ static void silent_failure(bool *loop, const char *msg){
 
 int main(){
 
-    //srand(time(NULL));
+    srand(time(NULL));
 
     if(SDL_Init(SDL_INIT_VIDEO) < 0)return(safe_exit("Erreur SDL",NULL,NULL));
 

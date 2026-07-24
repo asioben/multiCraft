@@ -1,8 +1,9 @@
 #include "../include/chunkManager.h"
 
 int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
-    //int seed = random_(1,10);
-    //printf("%d\n",seed);
+    int seed = random_(1,100);
+    seed = 3000000 + (10 * seed);
+    printf("%d\n",seed);
     if((*chunk_) == NULL){
         (*chunk_) = malloc(1 * sizeof(ChunkManager));
         if(*chunk_ == NULL) return safe_return("Chunk manager allocation failed\n");
@@ -20,7 +21,7 @@ int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
         float z = (floorf(i/size)*CHUNK_DEPTH);
         vec3s start = {x,0,z}; 
         (*chunk_)->chunks[i].start = start; 
-        if(generateChunk(&(*chunk_)->chunks[i],(3000000)) == 0) return safe_return("Generation of the chunk failed\n");
+        if(generateChunk(&(*chunk_)->chunks[i],(seed)) == 0) return safe_return("Generation of the chunk failed\n");
     }
     vec3s position = { size * 4.0f,16.0f, size * 4.0f};
     getCurrentChunk(*chunk_,position);
