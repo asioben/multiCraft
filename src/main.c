@@ -66,6 +66,7 @@ int main(){
 
     int size = (int)sqrt(CHUNKS_LIMIT);
     int area = CHUNKS_LIMIT;
+    //printf("size:%d\n",size);
 
     //int test_number = 0;
 
@@ -145,14 +146,12 @@ int main(){
                     keys = getKeys();
                     mouse = getMouse(event);
                     if(mouse.left == 1 || mouse.right == 4){
-                        //printf("position: %f,%f,%f\n",camera.position.x,camera.position.y,camera.position.z);
                         vec2 m_ = {mouse.position.x,mouse.position.y};
                         vec2 s_ = {WIDTH,HEIGHT};
                         vec3 ray;
-                        //vec3 cube = {55.0f,12.0f,55.0f};
+
                         screenToWorld(m_,s_,camera.View.raw,camera.Projection.raw,ray);
                         if(mouse.left == 1){
-                             //raytrace(m_w,camera.position.raw,camera.look.raw,cube);
                              //EVENT
                              //REMOVE = 0
                              //ADD = 1
@@ -185,11 +184,10 @@ int main(){
 
 /** GIANT TODO LIST FOR COMMIT ?
  * For the next commit 
- * I'd need to work on my perlin noise generation
- * or world generation in general
- * And test my generateVisibleBlocks optimisation (DONE partially)
- * I think that would be it
- * For what's done:
- * the mesh logic for the generateVisibleBlocks is done
- * I'd need to maybe modified generateVisibleBlocks
+ * Work on some physics 
+ * like gravity
+ * continue improving 3D world selection algo
+ * maybe add chunk frustrum culling
+ * work and improve the word generation
+ * maybe big terrain 
  **/

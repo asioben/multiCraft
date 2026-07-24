@@ -103,7 +103,7 @@ int generateChunk(Chunk *chunk, int seed){
 
     //there is a reason behind this if statement
     if(tree_created < number_of_tree){
-                    vec3 translation = {random_(0,10),random_(12,14),random_(0,10)};
+                    vec3 translation = {random_(0,10),random_(13,15),random_(0,10)};
                     tree_created += 1;
                     generateTree(tree_positions,tree_blocks);
                     checkTreeValidPosition(tree_positions[0],chunk->start,translation);
@@ -116,7 +116,7 @@ int generateChunk(Chunk *chunk, int seed){
                         tree_positions[s].z = tree_position_[2];
                         
                     }
-                }
+    }
 
     for(int i = 0; i < CHUNK_WIDTH; i++){
         for(int j = 0; j < CHUNK_DEPTH; j++){
@@ -125,7 +125,7 @@ int generateChunk(Chunk *chunk, int seed){
                 vec3 start = {chunk->start.x,0,chunk->start.z};
                 glm_vec3_add(position,start,position);
                 float noise = fractalPerlin2D(position[0],j,0.01f,10,0.5f,seed);
-                int height = (int)((noise + 1.0f) * 15);
+                int height = (int)((noise + 1.0f) * 15.0f);
                 
                 if(k == height) {
                     chunk->blocks[counter].type = GRASS;
@@ -153,6 +153,7 @@ int generateChunk(Chunk *chunk, int seed){
                 
                 if(chunk->minHeight == 0 || height < chunk->minHeight) chunk->minHeight = height;
                 chunk->blocks[counter].height = k;
+                //chunk->blocks[counter].t = -1.0f;
                 glm_mat4_identity(chunk->blocks[counter].model);
                 glm_translate(chunk->blocks[counter].model,position);
                 counter ++;
@@ -269,14 +270,6 @@ int generateMeshes(Chunk *chunk, BIDS *types){
     }
     if(chunk->models == NULL) return safe_return("Allocate models failed\n");
         
-    //printf("n: %d\n",chunk->meshesSize);
-    //in case the chunk update we need to change that
-    //PLEASE dont forget that 
-    //pLEAAAse
-    //my dumb aahh forgot...
-    //UPDATE
-    //I think I remember what I needed to change
-    //it caused me a very BIG issue :( !!!!!
     for(int i = 0; i < chunk->meshesSize; i++){
         //printf("type: %d\n",types->type[i]);
         if(((chunk->meshesSize - meshesBefore) >= 1 && i >= meshesBefore && chunk->update == true) || chunk->update != true ){
@@ -358,7 +351,7 @@ int updateMeshes(Chunk **chunks, Mesh **meshes, BIDS *types, int chunk, int size
 
     chunks[chunk]->update = true;
     int counter_before = types->counter;
-    generateMeshes(chunks[chunk],types);
+    if(generateMeshes(chunks[chunk],types) == 0) return safe_return("Generate meshes for an update failed\n");
     for(int i = 0; i <= types->counter; i++){
         if(types->sizes[i] == 0){
             (*meshes)[i].size = 0;
@@ -411,20 +404,7 @@ int updateMeshes(Chunk **chunks, Mesh **meshes, BIDS *types, int chunk, int size
         }
     }
 
-    //chunks[chunk]->blocks[element].type = AIR;
-    //printf("%d,%d\n",element,index);
-
-
-    /*vbo_ebo_destroy(&(*meshes)[id_type].VBO,&(*meshes)[id_type].EBO);
-    vbo_ebo_destroy(&(*meshes)[id_type].instance,NULL);
-    vao_destroy(&(*meshes)[id_type].VAO);*/
-
-    //
-    //printf("0:%d\n",(*meshes)[id_type].size);
-
-    //chunk->update = true;
-
-    return 0;
+    return 1;
 
 }
 
@@ -454,12 +434,3 @@ void destroyBIDS(BIDS **types){
     free((*types)->sizes);
     free(*types);
 }
-
-/**
- * For dynamic
- * I'd only update the updated chunk
- * some note:
- * 1: chunk->minHeight should be checked
- * I should lower it every time we lower the height 
- * that's been rendered
- */

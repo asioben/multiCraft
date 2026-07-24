@@ -14,23 +14,6 @@ void screenToWorld(vec2 mouse, vec2 screen, mat4 View, mat4 Projection, float *r
     vec4 rayClipStart = {x,y,-1.0f,1.0f};
     vec4 rayClipEnd = {x,y,1.0f,1.0f};
 
-    /*mat4 invView;
-    mat4 invProjection;
-    glm_mat4_inv(View,invView);
-    glm_mat4_inv(Projection,invProjection);
-
-    vec4 rayWordStart;
-    getMouseRayWorld(invProjection,invView,rayClipStart,rayWordStart);
-
-    vec4 rayWordEnd;
-    getMouseRayWorld(invProjection,invView,rayClipEnd,rayWordEnd);
-
-    glm_vec3_sub(rayWordEnd,rayWordStart,world);
-    printf("start: %f,%f,%f\n",rayWordStart[0],rayWordStart[1],rayWordStart[2]);
-    printf("end: %f,%f,%f\n",rayWordEnd[0],rayWordEnd[1],rayWordEnd[2]);*/
-    //glm_normalize(world);
-    //glm_mat4_mulv3(VP,ray,1.0f,world);
-
     mat4 VP;
     mat4 invVP;
     glm_mat4_mul(Projection,View,VP);
@@ -51,52 +34,15 @@ void screenToWorld(vec2 mouse, vec2 screen, mat4 View, mat4 Projection, float *r
     glm_vec3_sub(rayWorldEnd,rayWorldStart,ray);
     glm_vec3_normalize(ray);
 
-    /*vec4 world_ = {x,y,0.0f,1.0f};
-    glm_mat4_mulv(invVP,world_,world_);
-    glm_vec3_scale(world_,1/world_[3],world);
-
-    printf("world: %f,%f,%f\n",world[0],world[1],world[2]);*/
-    printf("ray: %f,%f,%f\n",ray[0],ray[1],ray[2]);
+    //printf("ray: %f,%f,%f\n",ray[0],ray[1],ray[2]);
 }
 
 bool raytrace(vec3 ray, vec3 position, vec3 cube){
-    /*vec3 toIntersect = {0.0f,0.0f,0.0f};
-    glm_vec3_sub(cube,position,toIntersect);
-
-    float length = glm_vec3_norm(toIntersect);
-    printf("length: %f, cube: (%f,%f,%f)\n",length,cube[0],cube[1],cube[2]);
-    if(length >= 12) return false;
-
-    float ray_length = glm_vec3_norm(ray);
-    printf("ray length: %f, ray: (%f,%f,%f)\n",ray_length,ray[0],ray[1],ray[2]);
-    //float scale_factor = (length / ray_length);
-    //printf("scale factor: %f\n",scale_factor);
-    vec3 ray_;
-    glm_vec3_scale(ray,length*0.8f,ray_);
-   
-
-    vec3 intersect = {0.0f,0.0f,0.0f};
-    glm_vec3_add(ray_,mouse,intersect);
-
-    bool condition = false;
-
-    if((intersect[0] >= cube[0] - 0.5f && intersect[0] <= cube[0] + 0.5f)
-       && (intersect[1] >= cube[1] - 0.5f && intersect[1] <= cube[1] + 0.5f)
-       && (intersect[2] >= cube[2] - 0.5f && intersect[2] <= cube[2] + 0.5f)){
-        condition = true;
-        printf("condition: %d\n",condition);
-    }
-
-    printf("mouse: %f,%f,%f\n",mouse[0],mouse[1],mouse[2]);
-    printf("position: %f,%f,%f\n",position[0],position[1],position[2]);
-    printf("ray: %f,%f,%f\n",ray_[0],ray_[1],ray_[2]);
-    printf("intersect: %f,%f,%f\n",intersect[0],intersect[1],intersect[2]);
-    printf("/////////////////////\n");*/
 
     vec3 min = {
-        cube[0] - 1.0f,
-        cube[1] - 1.0f,
-        cube[2] - 1.0f
+        cube[0] ,
+        cube[1] ,
+        cube[2] 
     };
 
     vec3 max = {
@@ -126,5 +72,8 @@ bool raytrace(vec3 ray, vec3 position, vec3 cube){
         if(tmin > tmax) return false;
     }
 
+    //if(tmax > 6.0f) return false;
+
     return tmax >= 0.0f;
 }
+

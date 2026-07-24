@@ -47,7 +47,7 @@ int getCurrentChunk(ChunkManager *chunk_, vec3s position){
             chunk_->currentChunk = i;
             if(previous == chunk_->currentChunk) return 0;
             chunk_->update = true;
-            //printf("%d\n",i);
+            //printf("%f,%f,%f\n",chunk_->chunks[i].start.x,chunk_->chunks[i].start.y,chunk_->chunks[i].start.z);
             return 1;
         }
     }
@@ -122,31 +122,54 @@ int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short
 int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types, float *ray, unsigned short *indices, int event){
     //EVENT 0 == REMOVE
     //EVENT 1 == ADD
+    int index = -1;
+    int chunk = -1;
+    float current_smallest = FLT_MAX;
     for(int g = 0; g < chunk_->load_size; g++){
         if(event == 0){
-            for(int h = 0; h < chunk_->loadChunks[g]->meshesSize; h++){
-             for(int d = 0; d < chunk_->loadChunks[g]->meshSize[h]; d++){
+            vec3 distance;
+
+            glm_vec3_sub(chunk_->loadChunks[g]->start.raw,chunk_->chunks[chunk_->currentChunk].start.raw,distance);
+            float dist = glm_vec3_norm2(distance);
+            float t;
+
+            if(dist <= 512.0f){
+                //printf("%f\n",dist);
+                for(int h = chunk_->loadChunks[g]->meshesSize - 1; h >= 0; h--){
+                  for(int d = chunk_->loadChunks[g]->meshSize[h] - 1; d >= 0; d--){
             
-                vec3 cube_pos = {0.0f,0.0f,0.0f};
-                //REMOVE SNIPPET
-                
-                glm_vec3_copy(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].model[3],cube_pos);
+                     vec3 cube_pos = {0.0f,0.0f,0.0f};
+                     //REMOVE SNIPPET
+                     
+                     glm_vec3_copy(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].model[3],cube_pos);
 
-                if(raytrace(ray,camera->position.raw,cube_pos) == true){
+                     /*t = raytrace(ray,camera->position.raw,cube_pos);
+                     //if(g == 45) printf("t:%f,small:%f\n",t,current_smallest);
+                     if(t >= 0.0f){
+                        if(t <= current_smallest){
+                            printf("ici %f\n",t);
+                            index = chunk_->loadChunks[g]->models[h][d];
+                            chunk = g;
+                        }
+                        current_smallest = fminf(t,current_smallest);
+                     }
+                     */
+                       if(raytrace(ray,camera->position.raw,cube_pos) == true){
 
-                   chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type = AIR;
+                         chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].type = AIR;
 
-                   if(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].height <= chunk_->loadChunks[g]->minHeight){
-                    chunk_->loadChunks[g]->minHeight -= 1;
-                   }
+                         if(chunk_->loadChunks[g]->blocks[chunk_->loadChunks[g]->models[h][d]].height <= chunk_->loadChunks[g]->minHeight){
+                          chunk_->loadChunks[g]->minHeight -= 1;
+                         }
 
-                   //printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
-                   updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices);
-                   return 1;
-                }
-                
-               } 
+                         //printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
+                         updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices);
+                         return 1;
+                       }
+                    } 
+               }
             }
+            
         }else if(event == 1){
             for(int b = 0; b < chunk_->loadChunks[g]->size; b++){
                 if(chunk_->loadChunks[g]->blocks[b].type == AIR){
@@ -156,17 +179,28 @@ int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types
                     glm_vec3_copy(chunk_->loadChunks[g]->blocks[b].model[3],cube_pos);
 
                     if(raytrace(ray,camera->position.raw,cube_pos) == true){
-
+                    //printf()
                        chunk_->loadChunks[g]->blocks[b].type = STONE;
 
-                       printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
-                       updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices);
+                       //printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
+                       if(updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices) == 0) return safe_return("Update failed\n");
                        return 1;
                     }
                 }
             }
         }
     }
+    /*if(event == 0 && index != -1 && chunk != -1){
+        printf("%d,%d\n",index,chunk);
+        chunk_->loadChunks[chunk]->blocks[index].type = AIR;
+
+        if(chunk_->loadChunks[chunk]->blocks[index].height <= chunk_->loadChunks[chunk]->minHeight){
+         chunk_->loadChunks[chunk]->minHeight -= 1;
+        }
+
+        //printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
+        if(updateMeshes(chunk_->loadChunks,meshes,types,chunk,chunk_->load_size,indices) == 0) return safe_return("Update failed\n");
+    }*/
     return 0;
 }
 

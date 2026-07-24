@@ -20,6 +20,7 @@ typedef struct{
     BlockID type;
     mat4 model;
     int height;
+    //float t;
 }Block;
 
 typedef struct{
