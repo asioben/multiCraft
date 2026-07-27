@@ -28,7 +28,7 @@ int getCurrentChunk(ChunkManager *chunk_, vec3s position);
 
 int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short *indices);
 
-int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types, float *ray, unsigned short *indices, int event);
+int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types, float *ray, unsigned short *indices, int event, BlockID block);
 
 void destroyChunkManager(ChunkManager **chunk_);
 

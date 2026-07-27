@@ -3,7 +3,7 @@
 
 #include "texture.h"
 
-#define BLOCKS_LIMIT 5
+#define BLOCKS_LIMIT 6
 
 typedef enum {
     AIR,
@@ -11,9 +11,12 @@ typedef enum {
     DIRT,
     STONE,
     OAK,
-    LEAVES
+    LEAVES,
+    BEDROCK
 }BlockID;
 
 void generateCube(float *vertices, BlockID block);
+
+void pickBlock(const Uint8 *keys, BlockID *block);
 
 #endif

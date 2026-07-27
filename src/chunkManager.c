@@ -120,7 +120,7 @@ int loadChunks(ChunkManager *chunk_, BIDS **types, Mesh **meshes, unsigned short
     return 1;
 }
 
-int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types, float *ray, unsigned short *indices, int event){
+int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types, float *ray, unsigned short *indices, int event, BlockID block){
     //EVENT 0 == REMOVE
     //EVENT 1 == ADD
     int index = -1;
@@ -138,6 +138,8 @@ int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types
                 //printf("%f\n",dist);
                 for(int h = chunk_->loadChunks[g]->meshesSize - 1; h >= 0; h--){
                   for(int d = chunk_->loadChunks[g]->meshSize[h] - 1; d >= 0; d--){
+                    //printf("%d,%d,%d,\n",chunk_->loadChunks[g]->models[h][0],h,d);
+                    //printf("here\n");
             
                      vec3 cube_pos = {0.0f,0.0f,0.0f};
                      //REMOVE SNIPPET
@@ -166,6 +168,7 @@ int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types
                          //printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
                          updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices);
                          return 1;
+                         //printf("is it possible\n");
                        }
                     } 
                }
@@ -181,7 +184,7 @@ int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types
 
                     if(raytrace(ray,camera->position.raw,cube_pos) == true){
                     //printf()
-                       chunk_->loadChunks[g]->blocks[b].type = STONE;
+                       chunk_->loadChunks[g]->blocks[b].type = block;
 
                        //printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
                        if(updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices) == 0) return safe_return("Update failed\n");

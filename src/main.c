@@ -119,6 +119,8 @@ int main(){
     char *string_fps = "FPS: ";
     char *final_fps_string = NULL;
 
+    BlockID current_block = GRASS;
+
     //MAIN LOOP
     while(loop){ 
         //printf("loop\n");
@@ -155,15 +157,16 @@ int main(){
                              //EVENT
                              //REMOVE = 0
                              //ADD = 1
-                             updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,0);
+                             updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,0,current_block);
                         }else if(mouse.right == 4){
-                             updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,1);
+                             updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,1,current_block);
                         }
                     }
                     if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
                         if(getCurrentChunk(chunkManager,camera.position))
                         if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
                     }
+                    pickBlock(keys,&current_block);
                 }
             }
         }
@@ -190,4 +193,6 @@ int main(){
  * maybe add chunk frustrum culling
  * work and improve the word generation
  * maybe big terrain 
+ * and also try to cull
+ * block at the border of a chunk
  **/

@@ -57,6 +57,16 @@ void generateCube(float *vertices, BlockID block){
             spritesID[5] = 76;
         }break;
 
+        //BEDROCK
+        case BEDROCK:{
+            spritesID[0] = 25;
+            spritesID[1] = 25;
+            spritesID[2] = 25;
+            spritesID[3] = 25;
+            spritesID[4] = 25;
+            spritesID[5] = 25;
+        }break;
+
         default:{
             printf("Default texture");
             spritesID[0] = 3;
@@ -110,4 +120,13 @@ void generateCube(float *vertices, BlockID block){
    for(int i = 0; i < 120; i++){
     vertices[i] = vertice_[i];
    }
+}
+
+void pickBlock(const Uint8 *keys, BlockID *block){
+    if(keys[SDL_SCANCODE_1]) *block = GRASS;
+    if(keys[SDL_SCANCODE_2]) *block = DIRT;
+    if(keys[SDL_SCANCODE_3]) *block = STONE;
+    if(keys[SDL_SCANCODE_4]) *block = OAK;
+    if(keys[SDL_SCANCODE_5]) *block = LEAVES;
+    if(keys[SDL_SCANCODE_6]) *block = BEDROCK;
 }
