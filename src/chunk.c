@@ -97,13 +97,23 @@ int generateChunk(Chunk *chunk, int seed){
     chunk->models = NULL;
     chunk->minHeight = 0;
 
+    float frequency = 0.01f;
+    int octave = 10;
+    float persistence = 0.5f;
+
     for(int i = 0; i < CHUNK_WIDTH; i++){
         for(int j = 0; j < CHUNK_DEPTH; j++){
             for(int k = 0; k < CHUNK_HEIGHT; k++){
                 vec3 position = {i,k,j};
                 vec3 start = {chunk->start.x,0,chunk->start.z};
+                /*if((int)chunk->start.x %  == 0){
+                    frequency = 0.1f;
+                    octave = 10;
+                    persistence = 0.1f;
+                }*/
                 glm_vec3_add(position,start,position);
-                float noise = fractalPerlin2D(position[0],j,0.01f,10,0.5f,seed);
+                //float noise = fractalPerlin2D(position[0],j,0.05f,20,0.1f,seed);
+                float noise = fractalPerlin2D(position[0],j,frequency,octave,persistence,seed);
                 int height = (int)((noise + 1.0f) * 15.0f);
                 
                 if(k == height){

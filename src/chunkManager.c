@@ -1,8 +1,8 @@
 #include "../include/chunkManager.h"
 
 int generateChunks(ChunkManager **chunk_, BIDS **types, int size){
-    int seed = random_(1,100);
-    seed = 3000000 + (10 * seed);
+    int seed = random_(1,1000000000);
+    //seed = 3000000 + (10 * seed);
     printf("%d\n",seed);
     if((*chunk_) == NULL){
         (*chunk_) = malloc(1 * sizeof(ChunkManager));

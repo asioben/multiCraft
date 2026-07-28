@@ -9,8 +9,8 @@
 
 #include <time.h>
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1000
+#define HEIGHT 750
 
 static void silent_failure(bool *loop, const char *msg){
     if(msg != NULL) printf(msg);
@@ -98,7 +98,7 @@ int main(){
 
     //camera portion
     Camera camera;
-    vec3s position = { size * 4.0f,16.0f,size * 4.0f};
+    vec3s position = { size * 4.0f,24.0f,size * 4.0f};
     vec3s look = {0.0f,2.0f,0.0f};
     initCamera(&camera,position,look);
 
@@ -121,6 +121,12 @@ int main(){
 
     BlockID current_block = GRASS;
 
+    Tick cycle;
+    initTime(&cycle);
+    int cycle_per_second = 20;
+    Uint64 cycle_time = (int)(1000000 / cycle_per_second);
+    int use_cycle = 0;
+
     //MAIN LOOP
     while(loop){ 
         //printf("loop\n");
@@ -136,6 +142,10 @@ int main(){
         }
         
         deltaTime(&tick);
+        //printf("%d\n",tick.delta);
+        if(timeCounter(&cycle,cycle_time)){
+            use_cycle = 0;
+        }
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,camera.Projection,handles[0],&matrix,&counter);
         render(meshes,BLOCKS_LIMIT,handles[0],texture);
@@ -145,20 +155,20 @@ int main(){
             switch(event.type){
                 case SDL_EVENT_QUIT: loop = false; break;
                 default: {
-                    keys = getKeys();
+                    if(use_cycle == 0) keys = getKeys();
                     mouse = getMouse(event);
-                    if(mouse.left == 1 || mouse.right == 4){
+                    if(mouse.left == 1 || mouse.right == 4 && use_cycle == 0){
                         vec2 m_ = {mouse.position.x,mouse.position.y};
                         vec2 s_ = {WIDTH,HEIGHT};
                         vec3 ray;
 
                         screenToWorld(m_,s_,camera.View.raw,camera.Projection.raw,ray);
-                        if(mouse.left == 1){
+                        if(mouse.left == 1 && use_cycle == 0){
                              //EVENT
                              //REMOVE = 0
                              //ADD = 1
                              updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,0,current_block);
-                        }else if(mouse.right == 4){
+                        }else if(mouse.right == 4 && use_cycle == 0){
                              updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,1,current_block);
                         }
                     }
@@ -167,6 +177,7 @@ int main(){
                         if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
                     }
                     pickBlock(keys,&current_block);
+                    use_cycle ++;
                 }
             }
         }

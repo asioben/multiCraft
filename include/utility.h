@@ -31,6 +31,8 @@ void deltaTime(Tick *tick);
 
 void fps_counter(int *fps, int *frames, Tick *timer);
 
+bool timeCounter(Tick *tick, Uint64 time);
+
 
 //GENERAL
 

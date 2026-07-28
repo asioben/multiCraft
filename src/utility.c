@@ -84,6 +84,16 @@ void fps_counter(int *fps, int *frames, Tick *timer){
     }
 }
 
+bool timeCounter(Tick *tick, Uint64 time){
+    tick->after = getTime();
+    tick->delta = tick->after - tick->before;
+    if(tick->delta >= time){
+        tick->before = tick->after;
+        return true;
+    }
+    return false;
+}
+
 void number_to_string(int number, char **string){
     int power = (int)SDL_floor(SDL_log10(number));
     int size = power + 1;

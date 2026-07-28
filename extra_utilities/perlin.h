@@ -4,6 +4,7 @@
 
 float perlin2D(float x, float z, float frequency, int seed);
 
+//x, z, frequency, octave, persistence, seed
 float fractalPerlin2D(float x, float z, float frequency, int octave, float persistence, int seed);
 
 #endif
