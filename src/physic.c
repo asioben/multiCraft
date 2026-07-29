@@ -77,3 +77,10 @@ bool raytrace(vec3 ray, vec3 position, vec3 cube){
     return tmax >= 0.0f;
 }
 
+void accelerate(vec3 acceleration, float *speed, float *position, float time){
+    for(int i = 0; i < 3; i++){
+        position[i] += (0.5f * acceleration[i] * SQUARE(time)) + (speed[i] * time);
+        speed[i] += acceleration[i] * time;
+        //if(i == 1)printf("%f\n",position[i]);
+    }
+}

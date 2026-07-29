@@ -12,6 +12,8 @@
 #define WIDTH 1000
 #define HEIGHT 750
 
+#define IMPL false
+
 static void silent_failure(bool *loop, const char *msg){
     if(msg != NULL) printf(msg);
     loop = false;
@@ -98,7 +100,7 @@ int main(){
 
     //camera portion
     Camera camera;
-    vec3s position = { size * 4.0f,24.0f,size * 4.0f};
+    vec3s position = { size * 4.0f,32.0f,size * 4.0f};
     vec3s look = {0.0f,2.0f,0.0f};
     initCamera(&camera,position,look);
 
@@ -121,11 +123,17 @@ int main(){
 
     BlockID current_block = GRASS;
 
+    //cycle (Tick)
     Tick cycle;
     initTime(&cycle);
     int cycle_per_second = 20;
     Uint64 cycle_time = (int)(1000000 / cycle_per_second);
     int use_cycle = 0;
+
+    //basic movement
+    vec3 acceleration = {0.0f,-0.0001f,0.0f};
+    vec3 speed_position = {0.0f,0.0f,0.0f};
+    vec3 speed_look = {0.0f,0.0f,0.0f};
 
     //MAIN LOOP
     while(loop){ 
@@ -145,6 +153,13 @@ int main(){
         //printf("%d\n",tick.delta);
         if(timeCounter(&cycle,cycle_time)){
             use_cycle = 0;
+        }
+        //printf("%i\n",tick.delta);
+        if(use_cycle == 0 && IMPL == true){
+            accelerate(acceleration,speed_position,camera.position.raw,((float)cycle.delta / 1000000));
+            accelerate(acceleration,speed_look,camera.look.raw,((float)cycle.delta / 1000000));
+            printf("Lookat: %f,%f,%f\n",camera.look.x,camera.look.y,camera.look.z);
+            printf("Position: %f,%f,%f\n",camera.position.x,camera.position.y,camera.position.z);
         }
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,camera.Projection,handles[0],&matrix,&counter);
