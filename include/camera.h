@@ -5,6 +5,8 @@
 
 #include "input.h"
 
+#define MODE_FLY false
+
 typedef struct{
     //camera general
     vec3s look;
@@ -27,6 +29,6 @@ mat4s worldMatrix(mat4s View, mat4s Projection);
 
 void matrix_init(mat4s View, mat4s Projection, unsigned int program, unsigned int *matrix, int *counter);
 
-int cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaTime);
+int cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaTime, float *direction);
 
 #endif

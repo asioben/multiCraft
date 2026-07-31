@@ -186,7 +186,7 @@ int updateBlock(ChunkManager *chunk_, Camera *camera, Mesh **meshes, BIDS *types
                     //printf()
                        chunk_->loadChunks[g]->blocks[b].type = block;
 
-                       //printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
+                       printf("here: %f, %f, %f\n",cube_pos[0],cube_pos[1],cube_pos[2]);
                        if(updateMeshes(chunk_->loadChunks,meshes,types,g,chunk_->load_size,indices) == 0) return safe_return("Update failed\n");
                        return 1;
                     }

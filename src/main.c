@@ -12,7 +12,7 @@
 #define WIDTH 1000
 #define HEIGHT 750
 
-#define IMPL false
+#define IMPL true
 
 static void silent_failure(bool *loop, const char *msg){
     if(msg != NULL) printf(msg);
@@ -131,12 +131,30 @@ int main(){
     int use_cycle = 0;
 
     //basic movement
-    vec3 acceleration = {0.0f,-0.0001f,0.0f};
+    vec3 acceleration = {0.0f,-0.005f,0.0f};
     vec3 speed_position = {0.0f,0.0f,0.0f};
     vec3 speed_look = {0.0f,0.0f,0.0f};
 
+    //bool collision = false;
+    bool on_cube = false;
+    Box cube;
+    Box hitbox;
+
+    cube.padding[0] = 1.0f;
+    cube.padding[1] = 1.0f;
+    cube.padding[2] = 1.0f;
+
+    hitbox.padding[0] = 1.0f;
+    hitbox.padding[1] = -3.0f;
+    hitbox.padding[2] = 1.0f;
+
+    long loop_counter = 0;
+
+    vec3 direction = {0.0f,0.0f,0.0f};
+
     //MAIN LOOP
     while(loop){ 
+        loop_counter ++;
         //printf("loop\n");
         //loadChunks(chunkManager);
         fps_counter(&fps,&frames,&fps_timer);
@@ -156,10 +174,59 @@ int main(){
         }
         //printf("%i\n",tick.delta);
         if(use_cycle == 0 && IMPL == true){
-            accelerate(acceleration,speed_position,camera.position.raw,((float)cycle.delta / 1000000));
-            accelerate(acceleration,speed_look,camera.look.raw,((float)cycle.delta / 1000000));
-            printf("Lookat: %f,%f,%f\n",camera.look.x,camera.look.y,camera.look.z);
-            printf("Position: %f,%f,%f\n",camera.position.x,camera.position.y,camera.position.z);
+            bool collision = false;
+            if(on_cube == false){
+                accelerate(acceleration,speed_position,camera.position.raw,((float)cycle.delta / 1000000));
+                accelerate(acceleration,speed_look,camera.look.raw,((float)cycle.delta / 1000000));
+                //printf("Lookat: %f,%f,%f\n",camera.look.x,camera.look.y,camera.look.z);
+                //printf("Position: %f,%f,%f\n",camera.position.x,camera.position.y,camera.position.z);
+                //if(on_cube) loop = false;
+            }
+            on_cube = false;
+            for(int v = 0; v < chunkManager->chunks[chunkManager->currentChunk].meshesSize; v++){
+                for(int c = 0; c < chunkManager->chunks[chunkManager->currentChunk].meshSize[v]; c++){
+
+                    glm_vec3_copy(chunkManager->chunks[chunkManager->currentChunk].blocks[chunkManager->chunks[chunkManager->currentChunk].models[v][c]].model[3],cube.position);
+                    glm_vec3_copy(camera.position.raw,hitbox.position);
+                    collision = boxToBoxCollision(cube,hitbox);
+
+                    if(collision){
+                        vec3 diff;
+
+                        glm_vec3_sub(cube.position,camera.position.raw,diff);
+
+                        if(diff[1] <= -1.0f){
+                            camera.position.y = cube.position[1] + 2.0f;
+                            glm_vec3_zero(speed_look);
+                            glm_vec3_zero(speed_position);
+                        //camera.look.y = cube.position[1] + 2.0f;
+                        }
+
+                        if(diff[0] >= 1.0f || diff[0] <= -1.0f){
+                            camera.position.x -= direction[0];
+                        }
+
+                        if(diff[2] >= 1.0f || diff[2] <= -1.0f){
+                            camera.position.z -= direction[2];
+                        }
+
+                        printf("Direction: %f,%f,%f\n",direction[0],direction[1],direction[2]);
+                        printf("diff: %f,%f,%f\n",diff[0],diff[1],diff[2]);
+
+                        printf("Block: %f,%f,%f\n",cube.position[0],cube.position[1],cube.position[2]);
+                        printf("Player: %f,%f,%f\n",camera.position.x,camera.position.y,camera.position.z);
+                        printf("Look: %f,%f,%f\n",camera.look.x,camera.look.y,camera.look.z);
+                        printf("loop:%d\n",loop_counter);
+                        printf("/////////////\n");
+
+
+                        on_cube = true;
+                        //loop = false;
+                        //break;
+                    }
+                    //if(collision) break;
+                }
+            }
         }
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,camera.Projection,handles[0],&matrix,&counter);
@@ -187,7 +254,7 @@ int main(){
                              updateBlock(chunkManager,&camera,&meshes,bid,ray,indices,1,current_block);
                         }
                     }
-                    if(cameraMovement(keys,mouse,&camera,tick.delta) == 1){ 
+                    if(cameraMovement(keys,mouse,&camera,tick.delta,direction) == 1){ 
                         if(getCurrentChunk(chunkManager,camera.position))
                         if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed.\n");
                     }

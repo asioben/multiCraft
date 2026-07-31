@@ -13,8 +13,10 @@
 #include <time.h>
 #include <inttypes.h>
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1000
+#define HEIGHT 750
+
+#define swap_(x, y, tmp) tmp = x; x = y; y = tmp;
 
 typedef struct{
     Uint64 before;

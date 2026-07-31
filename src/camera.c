@@ -42,7 +42,7 @@ void matrix_init(mat4s View, mat4s Projection, unsigned int program, unsigned in
     glUniformMatrix4fv(*matrix,1,GL_FALSE,&World[0][0]);
 }
 
-int cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaTime){
+int cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaTime, float *direction){
     int to_return = 0;
     float sensibility = 0.005f;
     float time = ((float)deltaTime)/1000.0f;
@@ -66,12 +66,30 @@ int cameraMovement(const Uint8 *keys, Mouse mouse, Camera *camera, Uint64 deltaT
     //keyboard
     SDL_Scancode list[6] = {SDL_SCANCODE_UP,SDL_SCANCODE_DOWN,SDL_SCANCODE_RIGHT,SDL_SCANCODE_LEFT,SDL_SCANCODE_W,SDL_SCANCODE_S};
     for(int i = 0; i < 6; i++) if(keys[list[i]]) to_return = 1;
-    if(keys[SDL_SCANCODE_UP]) camera->position = glms_vec3_add(camera->position,camera->forward);
-    if(keys[SDL_SCANCODE_DOWN]) camera->position = glms_vec3_sub(camera->position,camera->forward);
-    if(keys[SDL_SCANCODE_RIGHT]) camera->position = glms_vec3_add(camera->position,camera->right);
-    if(keys[SDL_SCANCODE_LEFT]) camera->position = glms_vec3_sub(camera->position,camera->right);
-    if(keys[SDL_SCANCODE_W]) camera->position = glms_vec3_add(camera->position,glms_vec3_scale(camera->up,time*speed));
-    if(keys[SDL_SCANCODE_S]) camera->position = glms_vec3_sub(camera->position,glms_vec3_scale(camera->up,time*speed));
+    vec3s forward;
+    glm_vec3_copy(camera->forward.raw,forward.raw);
+    if(!MODE_FLY)forward.y = 0.0f;
+    if(keys[SDL_SCANCODE_UP]){
+         camera->position = glms_vec3_add(camera->position,forward);
+         direction[2] = 1.0f;
+        }
+    if(keys[SDL_SCANCODE_DOWN]){
+         camera->position = glms_vec3_sub(camera->position,forward);
+         direction[2] = -1.0f;
+        }
+    if(keys[SDL_SCANCODE_RIGHT]){
+         camera->position = glms_vec3_add(camera->position,camera->right);
+         direction[0] = 1.0f;
+        }
+    if(keys[SDL_SCANCODE_LEFT]){
+         camera->position = glms_vec3_sub(camera->position,camera->right);
+         direction[0] = -1.0f;
+        }
+    if(keys[SDL_SCANCODE_W]){
+         camera->position = glms_vec3_add(camera->position,glms_vec3_scale(camera->up,time*speed*10.0f));
+         direction[1] = 1.0f;
+        }
+    //if(keys[SDL_SCANCODE_S]) camera->position = glms_vec3_sub(camera->position,glms_vec3_scale(camera->up,time*speed));
 
     camera->look = glms_vec3_add(camera->position,camera->forward);
     //printf("(%f,%f,%f)\n",camera->look.x,camera->look.y,camera->look.z);

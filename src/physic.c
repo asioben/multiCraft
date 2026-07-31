@@ -84,3 +84,44 @@ void accelerate(vec3 acceleration, float *speed, float *position, float time){
         //if(i == 1)printf("%f\n",position[i]);
     }
 }
+
+bool boxToBoxCollision(Box boxA, Box boxB){
+    vec3 a_min;
+    vec3 b_min;
+
+    vec3 a_max;
+    vec3 b_max;
+
+    int collision = 0;
+    float tmp = 0.0f;
+
+    for(int i = 0; i < 3; i++){
+        a_min[i] = boxA.position[i];
+        b_min[i] = boxB.position[i];
+        
+        a_max[i] = boxA.position[i] + boxA.padding[i];
+        b_max[i] = boxB.position[i] + boxB.padding[i];
+
+        if(a_min[i] > a_max[i]){
+            /*tmp = a_min[i];
+            a_min[i] = a_max[i];
+            a_max[i] = tmp;*/
+            swap_(a_min[i],a_max[i],tmp);
+        }
+
+        if(b_min[i] > b_max[i]){
+            /*tmp = b_min[i];
+            b_min[i] = b_max[i];
+            b_max[i] = tmp;*/
+            swap_(b_min[i],b_max[i],tmp);
+        }
+
+        if(a_min[i] <= b_max[i] && a_max[i] >= b_min[i]){
+            collision ++;
+          }
+    }
+
+    if(collision == 3) return true;
+
+    return false;
+}
