@@ -39,7 +39,7 @@ void vao_destroy(unsigned int *VAO);
 //SHADER
 //unsigned int compileShader(const char *source, GLenum shaderType);
 
-int shaders_init(const char *vSrc,const char *fSrc, int *handles);
+int shaders_init(const char *vSrc,const char *fSrc, unsigned int *handles);
 
 void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int program);
 

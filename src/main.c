@@ -6,6 +6,7 @@
 #include "../include/chunk.h"
 #include "../include/chunkManager.h"
 #include "../include/physic.h"
+#include "../include/scene.h"
 
 #include <time.h>
 
@@ -47,11 +48,9 @@ int main(){
 
     printf("OpenGL version: %s\n",version);
 
-    glClearColor(0.529f,0.807f,0.922f,1.0f);
-
     //backface culling
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    /*glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);*/
     //glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
     unsigned short indices[] = {
@@ -63,8 +62,12 @@ int main(){
         20,21,22,  22,23,20         // top
     };
 
+    //in case again
     glEnable(GL_DEPTH_TEST);
     glViewport(0,0,WIDTH,HEIGHT);
+
+    //in case
+    //glDepthMask(GL_TRUE);
 
     int size = (int)sqrt(CHUNKS_LIMIT);
     int area = CHUNKS_LIMIT;
@@ -77,15 +80,15 @@ int main(){
     BIDS *bid = NULL;
     if(generateChunks(&chunkManager,&bid,size) == 0)silent_failure(&loop,"Chunks failed\n");
 
-    Arena arena;
-    arena_init(&arena,16000000);
+    /*Arena arena;
+    arena_init(&arena,16000000);*/
     Mesh *meshes = NULL;
     if(loadChunks(chunkManager,&bid,&meshes,indices) == 0)silent_failure(&loop,"Loading chunks failed\n");
 
-    int handles[3] = {0,0,0};
+    unsigned int handles[3] = {0,0,0};
 
     //paths
-    const char *vs = "/Users/user/Developer/multiCraft/shaders/vertex.vs";
+    const char *vs = "/Users/user/Developer/multiCraft/shaders/2dvertex.vs";
     const char *fs = "/Users/user/Developer/multiCraft/shaders/fragment.fs";
 
     if(shaders_init(vs,fs,handles) == 1) return safe_exit("Erreur shaders",window,context);
@@ -110,7 +113,14 @@ int main(){
 
     //texture 
     unsigned int texture;
-    if(initTexture("/Users/user/Developer/multiCraft/sprites/block.png",&texture)==1) return safe_exit("Erreor Texture",window,context);
+    //if(initTexture("/Users/user/Developer/multiCraft/sprites/title.png",&texture)==1) return safe_exit("Error Texture",window,context);
+
+    unsigned int titleVAO;
+    unsigned int titleVBO;
+    unsigned int titleTexture;
+    unsigned int titleEBO;
+
+    if(initTitle(&titleVAO,&titleVBO,&titleTexture) == 0) return safe_exit("Error Title",window,context);
 
     //fps counter
     int fps = 0;
@@ -152,8 +162,12 @@ int main(){
 
     vec3 direction = {0.0f,0.0f,0.0f};
 
+    //Scene
+    Scene scene = TITLE;
+
     //MAIN LOOP
     while(loop){ 
+      if(scene == GAME){
         loop_counter ++;
         //printf("loop\n");
         //loadChunks(chunkManager);
@@ -230,7 +244,13 @@ int main(){
         }
         camera.View = glms_lookat(camera.position,camera.look,camera.up);
         matrix_init(camera.View,camera.Projection,handles[0],&matrix,&counter);
-        render(meshes,BLOCKS_LIMIT,handles[0],texture);
+        //render(meshes,BLOCKS_LIMIT,handles[0],texture);
+    }else{
+        //
+        //sceneManagement(&scene,);
+        //texture = titleTexture;
+    }
+        sceneManagement(&scene,meshes,handles[0],texture,titleVAO);
         SDL_GL_SwapWindow(window);
         SDL_Event event;
         while(SDL_PollEvent(&event) == 1){
@@ -270,10 +290,12 @@ int main(){
     destroyMeshes(&meshes,1);
     shaders_destroy(handles[1],handles[2],handles[0]);
     destroyTexture(&texture);
-    arena_free(&arena);
+    //arena_free(&arena);
     SDL_GL_DestroyContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    vao_destroy(&titleVAO);
+    vbo_ebo_destroy(&titleVBO,&titleEBO);
 
     return 0;
 }

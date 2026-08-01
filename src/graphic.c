@@ -70,6 +70,7 @@ static int compileShader(const char *source, GLenum shaderType){
     shader = glCreateShader(shaderType);
     //get the content of the src file
     value = readFile(source,&content);
+    //printf("Shader source:\n%s\n", content);
     if(value == 1){
         printf("Erreur Compilation de Shader ;");
         return -1;
@@ -90,7 +91,7 @@ static int compileShader(const char *source, GLenum shaderType){
     return shader;
 }
 
-int shaders_init(const char *vSrc,const char *fSrc, int *handles){
+int shaders_init(const char *vSrc,const char *fSrc, unsigned int *handles){
     //compile the shaders
     int vShader,fShader;
     //check for each shader if the compilation failed
@@ -104,7 +105,6 @@ int shaders_init(const char *vSrc,const char *fSrc, int *handles){
     glAttachShader(program,vShader);
     glAttachShader(program,fShader);
     glLinkProgram(program);
-    glUseProgram(program);
     //check for failure
     int failure;
     char info[512];
@@ -116,6 +116,8 @@ int shaders_init(const char *vSrc,const char *fSrc, int *handles){
         glDeleteShader(fShader);
         return 1;
     }
+    glUseProgram(program);
+    
     //get different handles
     handles[0] = program;
     handles[1] = vShader;
@@ -128,17 +130,4 @@ void shaders_destroy(unsigned int vShader, unsigned int fShader, unsigned int pr
     glDeleteProgram(program);
     glDeleteShader(vShader);
     glDeleteShader(fShader);
-}
-
-void render(Mesh *meshes, int size, unsigned int program, unsigned int texture){
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(program);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,texture);
-    glUniform1i(glGetUniformLocation(program,"ourTexture"),0);
-    for(int i = 0; i < size; i++){
-        glBindVertexArray(meshes[i].VAO);
-        glDrawElementsInstanced(GL_TRIANGLES,36,GL_UNSIGNED_SHORT,0,meshes[i].size);
-    }
-    glBindVertexArray(0);
 }

@@ -3,6 +3,7 @@
 
 #include "camera.h"
 
+//in texture.h, init texture in OpenGL
 int initTexture(const char* path, unsigned int *texture);
 
 void destroyTexture(unsigned int *texture);
